@@ -8,7 +8,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="아빠는 헤라클래스🔥">
-<title>아빠는 헤라클래스🔥 </title>
+<title>아빠는 헤라클래스🔥</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -315,6 +315,13 @@ input{font-family:var(--mono);}
   <div class="modebar" id="modebar"></div>
 
   <div class="stats" id="stats"></div>
+
+  <div class="seclab"><span>⚖️</span>체중 기록</div>
+  <div class="card" id="weightbox"></div>
+
+  <div class="seclab"><span>💧</span>수분 섭취</div>
+  <div class="card water" id="waterbox"></div>
+
   <div class="today" id="today"></div>
 
   <div class="seclab"><span>🤸</span>스트레칭(운동전)</div>
@@ -324,18 +331,12 @@ input{font-family:var(--mono);}
   <div id="list"></div>
 
   <div id="finisherWrap" class="hidden">
-    <div class="seclab"><span>🫁</span>심폐 보너스<span class="hint">선택 · 여유되면</span></div>
+    <div class="seclab"><span>🫁</span>심폐 보너스<span class="hint">선택 · 여유 있으면</span></div>
     <div class="card simple" id="finisher"></div>
   </div>
 
   <div class="seclab"><span>🧘</span>스트레칭(운동후)</div>
   <div class="card stretch" id="stretchPost"></div>
-
-  <div class="seclab"><span>💧</span>수분 섭취</div>
-  <div class="card water" id="waterbox"></div>
-
-  <div class="seclab"><span>⚖️</span>체중 기록</div>
-  <div class="card" id="weightbox"></div>
 
   <div class="seclab"><span>✏️</span>메모</div>
   <div class="notewrap"><textarea id="note" rows="2" placeholder="컨디션·특이사항"></textarea></div>
@@ -356,7 +357,7 @@ input{font-family:var(--mono);}
 
 <!-- ===== 달력 뷰 ===== -->
 <div id="view-cal" class="hidden">
-  <div class="top"><div class="brand"><div class="b1">아빠는 헤라클래스🔥</div><div class="b2">기록 달력</div></div></div>
+  <div class="top"><div class="brand"><div class="b1">🔥 아빠파이어</div><div class="b2">기록 달력</div></div></div>
   <div class="calhead">
     <button class="navbtn" id="calPrev">‹</button>
     <div class="calmonth" id="calMonth">—<span class="yr" id="calYear"></span></div>
@@ -402,7 +403,7 @@ input{font-family:var(--mono);}
 </div></div>
 
 <script>
-/* ===== 아빠는 헤라클래스🔥 · 수피 F1-2 ===== */
+/* ===== 🔥 아빠는 헤라클래스🔥 · 수피 F1-2 ===== */
 const REF='2026-08-04'; // 첫 운동 (A플랜)
 const WATER_GOAL=8;
 const BAR=11.9;
@@ -428,111 +429,190 @@ function scheduleType(s){
 }
 
 /* ---- 운동 데이터 ---- */
+/* 바벨 load = 한쪽 원판 무게 (kg). 총 바벨 = 11.9 + load×2
+   단계: 0(빈봉11.9) / 5(21.9) / 10(31.9) / 15(41.9) / 20(51.9) */
 const PLANS={
   A:{tag:'A플랜',title:'A플랜 · 스쿼트·벤치·로우',
     goal:'하체+가슴+등 동시 — 아이 안고 앉았다 일어나기',
     pre:['목 좌우 기울이기 10초씩','어깨 앞뒤 크게 돌리기 각 10회','팔꿈치 머리 위 당기기(삼두) 좌우 15초','가슴 열기 — 양팔 뒤로 깍지 끼고 10초 × 2','고관절 회전 좌우 각 10회','맨몸 스쿼트 15회 (천천히, 폼 체크)','빈봉 스쿼트 10회 · 빈봉 벤치 10회 (워밍업)'],
     post:['가슴 스트레칭 (도어웨이) 30초 × 2','어깨 뒤 (팔 가로질러 당기기) 좌우 20초','삼두 (팔꿈치 머리 뒤) 좌우 20초','고양이-소 스트레칭 10회','대퇴사두 서서 당기기 좌우 25초','햄스트링 앉아 발 뻗기 30초','아기자세 30초'],
     fin:{name:'버피',detail:'12회 × 3세트 · 사이 30초 휴식'},
-    tip:'스쿼트 익숙해지면 +5kg, 벤치 익숙해지면 +2~3kg',
+    tip:'모든 세트 10회 달성 시 → 양쪽 각 5kg 추가',
     ex:[
-      {id:'squat', name:'스쿼트',sets:5,reps:'10',load:10,bar:true,note:'익숙해지면 5kg 추가'},
-      {id:'bench', name:'벤치프레스',sets:5,reps:'10',load:10,bar:true,note:'익숙해지면 2~3kg 추가'},
-      {id:'row',   name:'벤트오버 바벨 로우',sets:4,reps:'10',load:10,bar:true,note:'요통 있으면 머신 로우 대체'},
-      {id:'dohp',  name:'덤벨 오버헤드프레스',sets:3,reps:'12',load:5,note:'5~8kg 권장'},
-      {id:'crunch',name:'크런치',sets:3,reps:'15+',bw:true,note:'매 세트 한계까지'},
+      {id:'squat', name:'스쿼트',      sets:5,reps:'10',load:5, bar:true,note:'총 21.9kg · 익숙해지면 10kg 단계 추가'},
+      {id:'bench', name:'벤치프레스',  sets:5,reps:'10',load:5, bar:true,note:'총 21.9kg · 익숙해지면 10kg 단계 추가'},
+      {id:'row',   name:'벤트오버 바벨 로우',sets:4,reps:'10',load:5,bar:true,note:'총 21.9kg · 요통 있으면 머신 로우 대체'},
+      {id:'dohp',  name:'덤벨 오버헤드프레스',sets:3,reps:'12',load:5,note:'덤벨 5kg · 익숙해지면 7.5→10kg'},
+      {id:'crunch',name:'크런치',      sets:3,reps:'15+',bw:true,note:'매 세트 한계까지'},
     ]},
   B:{tag:'B플랜',title:'B플랜 · 푸시업·풀업·데드',
     goal:'전신 연결 — 허리 보호·당기는 힘·하체 뒷사슬',
     pre:['어깨 돌리기 앞뒤 각 10회','팔 크로스 스트레칭 좌우 10초','데드행 (바에 매달리기) 15초 × 2','고관절 회전 좌우 각 10회','워킹런지 10보','빈봉 데드리프트 10회 (워밍업)'],
     post:['광배 — 한 손 벽 짚고 옆으로 기울이기 좌우 25초','이두 (팔 뒤로 뻗어 벽) 좌우 20초','승모·목 — 머리 기울이며 손으로 당기기 좌우 20초','햄스트링 서서 발 뻗기 좌우 25초','둔근 (비둘기 자세) 좌우 30초','고관절 굴곡근 런지 스트레칭 좌우 25초','아기자세 30초'],
     fin:{name:'마운틴 클라이머',detail:'30초 × 3세트 · 사이 30초 휴식'},
-    tip:'데드 익숙해지면 +5~7kg, 풀업 안 되면 렛풀다운 10회+',
+    tip:'모든 세트 목표 rep 달성 시 → 양쪽 각 5kg 추가',
     ex:[
-      {id:'pushup',name:'푸시업',sets:5,reps:'12+',bw:true,note:'12회 못 채우면 무릎 대고'},
-      {id:'pullup',name:'풀업',sets:5,reps:'8+',bw:true,note:'안 될 때 렛풀다운 10회+ 대체'},
-      {id:'ohp',   name:'오버헤드프레스',sets:3,reps:'10',load:0,bar:true,note:'빈봉으로 시작'},
-      {id:'dead',  name:'데드리프트',sets:4,reps:'10',load:15,bar:true,note:'익숙해지면 5~7kg 추가'},
-      {id:'lunge', name:'덤벨 런지',sets:4,reps:'15',load:5,note:'양손 각 5kg · /다리'},
+      {id:'pushup',name:'푸시업',      sets:5,reps:'12+',bw:true,note:'12회 못 채우면 무릎 대고'},
+      {id:'pullup',name:'풀업',        sets:5,reps:'8+', bw:true,note:'안 될 때 렛풀다운 10회+ 대체'},
+      {id:'ohp',   name:'오버헤드프레스',sets:3,reps:'10',load:0,bar:true,note:'총 11.9kg(빈봉) · 익숙해지면 5kg 단계 추가'},
+      {id:'dead',  name:'데드리프트',  sets:4,reps:'10',load:10,bar:true,note:'총 31.9kg · 모든 세트 10회 달성 시 5kg 단계 추가'},
+      {id:'lunge', name:'덤벨 런지',   sets:4,reps:'15',load:5, note:'양손 각 5kg · /다리'},
     ]},
 };
+/* RUNS — 단계별 순서 (처음 런닝부터 순차 진행)
+   1~2회: 이지런으로 기초 쌓기
+   3~4회: 템포/스트라이드로 강도 살짝 올리기
+   5~6회: 인터벌로 심폐 한계 자극
+   7회~: 처음부터 반복 (점점 같은 세션이 더 쉬워짐) */
 const RUNS=[
   {
-    name:'VO2 인터벌',
-    focus:'심폐 상한 넓히기 — 심장이 한 번에 밀어내는 혈액량 ↑',
+    name:'이지 베이스런 1',
+    focus:'첫 런닝 — 심박존 감각 익히기 (부담 없이)',
     blocks:[
-      '워밍업 조깅 10분 · 심박 130~145bpm · 코 호흡 + 대화 가능한 정도.',
-      '인터벌 구간 4분 — 심박 160~172bpm (Z4). 한두 단어만 겨우 나올 정도로 빠르게. 숨이 차는 정도가 기준.',
-      '회복 구간 3분 — 심박 130~140bpm (Z2). 천천히 조깅 또는 빠른 걷기. 다음 인터벌 전에 숨을 충분히 고름.',
-      '② + ③ 를 총 4세트 반복',
-      '쿨다운 5분 — 매우 천천히 조깅→걷기로 속도를 서서히 낮춤. 심박이 120bpm 이하로 내려오면 완료. 갑자기 멈추면 어지럽다.',
+      '🔵 25~30분 · 심박 130~145 · 콧노래 나올 정도',
+      '⬇️ 마지막 3분 걷기 마무리',
     ],
-    rpe:'인터벌 구간: RPE 8~9 (Z4) · 한두 단어만 겨우, 표정이 구겨짐',
-    success:'4세트 완주 + 마지막 세트도 첫 세트와 비슷한 강도 유지',
-    goal:'목표: 4세트 전부 완주. 처음엔 3세트도 OK',
+    rpe:'RPE 5 · 코로 숨 · 옆 사람과 대화 가능 · 느려도 OK',
+    success:'걷지 않고 같은 페이스로 완주',
+    goal:'완주가 목표 — 페이스·거리 신경 X',
   },
   {
-    name:'이지 베이스런',
-    focus:'모세혈관·미토콘드리아 ↑ — 오래 안 지치는 몸 만들기',
+    name:'이지 베이스런 2',
+    focus:'기초 지구력 쌓기 — 지난번보다 조금 더',
     blocks:[
-      '준비 — 동적 스트레칭 후 천천히 걷기 2~3분으로 시작',
-      '본 런닝 35~40분 — 심박 130~145bpm (Z2). 콧노래 불러도 될 정도. 느려도 전혀 상관없음.',
-      '쿨다운 — 마지막 3~5분은 속도를 더 낮춰 걷기로 마무리. 심박 120 이하 확인.',
+      '🔵 30~35분 · 심박 130~145 · 대화 가능',
+      '⬇️ 마지막 3분 걷기 마무리',
     ],
-    rpe:'RPE 5~6 (Z2) · 코로 숨 쉬며 대화 가능 · 느려도 완전히 OK',
-    success:'걷지 않고 같은 페이스로 끝까지 완주',
-    goal:'목표: 지난번보다 2~3분 더 길게. 페이스는 신경 쓰지 말 것',
-  },
-  {
-    name:'템포런',
-    focus:'"힘든 페이스를 오래" 버티는 능력 (유산소 역치 ↑)',
-    blocks:[
-      '워밍업 조깅 10분 — 심박 130~145bpm. 몸을 충분히 풀어야 템포 구간이 효과적.',
-      '템포 구간 20분 — 심박 149~160bpm (Z3). "편하게 힘든" 페이스. 짧은 문장(2~3단어)은 말할 수 있지만 대화는 힘듦. 같은 속도를 20분 유지하는 게 핵심.',
-      '쿨다운 5분 — 조깅→걷기. 템포 직후 바로 멈추면 다리에 혈액이 고이니 반드시 5분 이상 천천히.',
-    ],
-    rpe:'템포 RPE 7 (Z3) · 짧은 단어만 가능 · 편하게 힘든 느낌',
-    success:'20분 내내 같은 속도 유지 · 후반 3분에 느려지지 않기',
-    goal:'목표: 20분 페이스 유지. 처음엔 15분도 OK',
-  },
-  {
-    name:'롱런',
-    focus:'지구력 저장고 키우기 — 오래 달려도 다음 날 멀쩡한 몸',
-    blocks:[
-      '준비 — 워킹 5분 후 천천히 시작',
-      '본 런닝 50~60분 — 심박 130~145bpm (Z2). 이지 베이스런과 같은 강도. 이 속도로 1시간을 버티는 것이 목표.',
-      '쿨다운 — 마지막 5분은 걷기. 롱런 후에는 정적 스트레칭을 충분히 (10분 이상).',
-    ],
-    rpe:'RPE 5~6 (Z2) · 대화 가능 · 60분 내내 같은 페이스',
-    success:'완주. 후반(30분 이후)에도 자세가 무너지지 않기',
-    goal:'목표: 완주. 페이스 신경 X — 끝까지 달리는 것 자체가 성공',
-  },
-  {
-    name:'숏 인터벌',
-    focus:'VO2max 자극 — 심폐 최대 능력 끌어올리기',
-    blocks:[
-      '워밍업 조깅 10분 — 심박 130~145bpm. 충분히 풀어야 전력 구간에서 부상이 없음.',
-      '전력 구간 1분 — 심박 172bpm+ (Z5). 완전히 전력, 말 전혀 불가. 폼이 무너지지 않는 선에서 최대한.',
-      '회복 구간 2분 — 빠른 걷기 또는 매우 느린 조깅. 심박이 140 아래로 내려와야 다음 세트 제대로 가능.',
-      '② + ③ 를 총 8세트 반복',
-      '쿨다운 5분 — 느린 조깅→걷기. 숏 인터벌 후 근육에 젖산이 많이 쌓여 있어 쿨다운이 특히 중요.',
-    ],
-    rpe:'전력 구간: RPE 9~10 (Z5) · 말 불가 · 8세트 모두 같은 강도 목표',
-    success:'8세트 완주 + 폼 유지 (등 세우기, 팔 앞뒤로)',
-    goal:'목표: 8세트 완주. 처음엔 5~6세트도 OK',
+    rpe:'RPE 5~6 · 지난번보다 살짝 길게',
+    success:'걷지 않고 완주',
+    goal:'지난번보다 5분 더 길게',
   },
   {
     name:'이지런 + 스트라이드',
-    focus:'회복하며 달리기 효율(이코노미) ↑',
+    focus:'달리기 효율 올리기 (강도는 아직 낮게)',
     blocks:[
-      '이지 조깅 30분 — 심박 130~145bpm (Z2). 대화 가능, 편한 페이스.',
-      '스트라이드 6회 — 20초 동안 80~85% 강도 (전력이 아님). 다리 회전을 빠르게, 상체는 편안하게 세움. RPE 7 정도.',
-      '스트라이드 사이 회복 — 40초 걷기 또는 멈춤.',
-      '스트라이드 후 — 쿨다운 없이 바로 스트레칭으로 마무리 (이미 충분히 식음).',
+      '🔵 이지 조깅 25분 · 심박 130~145',
+      '⚡ 스트라이드 20초 × 4회 · 80% 강도 (숨차지 않게)',
+      '🔵 스트라이드 사이 회복 40초 걷기',
     ],
-    rpe:'이지 구간 RPE 5 (Z2) · 스트라이드 RPE 7 (80~85%, 전력 아님)',
+    rpe:'이지 RPE 5 · 스트라이드 RPE 6~7 · 헐떡이면 너무 빠른 것',
     success:'스트라이드마다 다리 회전이 가볍고 빠른 느낌',
-    goal:'목표: 스트라이드 6회 모두 경쾌하게 — 빠르게 달리는 느낌 연습',
+    goal:'스트라이드 4회 완주 · 편하게',
+  },
+  {
+    name:'템포런',
+    focus:'유산소 역치 ↑ — 힘든 페이스를 오래 버티기',
+    blocks:[
+      '🔵 워밍업 조깅 10분 · 심박 130~145',
+      '🟠 템포 15분 · 심박 149~160 · 짧은 단어만 가능',
+      '⬇️ 쿨다운 5분 · 조깅→걷기 (바로 멈추면 안됨)',
+    ],
+    rpe:'템포 RPE 7 · 편하게 힘든 느낌',
+    success:'15분 내내 같은 속도 · 후반에 안 느려지기',
+    goal:'15분 페이스 유지',
+  },
+  {
+    name:'숏 인터벌',
+    focus:'VO2max 자극 — 심폐 최대치 처음 건드리기',
+    blocks:[
+      '🔵 워밍업 조깅 10분 · 심박 130~145',
+      '🔴 빠르게 1분 · 심박 160~172 · 한두 단어만 겨우',
+      '🔵 회복 2분 · 빠른 걷기 · 심박 140↓',
+      '🔁 4세트만 (첫 인터벌)',
+      '⬇️ 쿨다운 5분',
+    ],
+    rpe:'빠른 구간 RPE 8 · 너무 죽어라 하지 말 것 (4세트니까)',
+    success:'4세트 완주 · 마지막 세트도 같은 강도',
+    goal:'4세트 완주 (5세트도 OK)',
+  },
+  {
+    name:'VO2 인터벌',
+    focus:'심폐 상한 넓히기 — 숏 인터벌 다음 단계',
+    blocks:[
+      '🔵 워밍업 10분 · 심박 130~145',
+      '🔴 인터벌 4분 · 심박 160~172 · 한두 단어만 겨우',
+      '🔵 회복 3분 · 조깅 또는 빠른 걷기',
+      '🔁 3세트 (익숙해지면 4세트)',
+      '⬇️ 쿨다운 5분 · 심박 120↓',
+    ],
+    rpe:'인터벌 RPE 8~9 · 표정 구겨질 정도',
+    success:'3세트 완주 · 마지막 세트도 같은 강도',
+    goal:'3세트 완주 (4세트 도전해도 OK)',
+  },
+  // 7회~: 동일 순서 반복 (같은 세션이 점점 쉬워짐)
+  {
+    name:'이지 베이스런',
+    focus:'회복 + 기초 지구력 유지',
+    blocks:[
+      '🔵 35~40분 · 심박 130~145 · 대화 가능',
+      '⬇️ 마지막 3~5분 걷기',
+    ],
+    rpe:'RPE 5~6 · 처음보다 같은 속도가 훨씬 편해졌을 것',
+    success:'걷지 않고 완주',
+    goal:'지난 이지런보다 2~3분 더 길게',
+  },
+  {
+    name:'이지런 + 스트라이드',
+    focus:'달리기 효율 ↑ (스트라이드 6회로 늘리기)',
+    blocks:[
+      '🔵 이지 조깅 30분 · 심박 130~145',
+      '⚡ 스트라이드 20초 × 6회 · 80~85% 강도',
+      '🔵 스트라이드 사이 회복 40초 걷기',
+    ],
+    rpe:'이지 RPE 5 · 스트라이드 RPE 7',
+    success:'스트라이드마다 다리 회전이 가볍고 빠른 느낌',
+    goal:'스트라이드 6회 경쾌하게',
+  },
+  {
+    name:'템포런',
+    focus:'유산소 역치 ↑ (템포 구간 20분으로 늘리기)',
+    blocks:[
+      '🔵 워밍업 10분 · 심박 130~145',
+      '🟠 템포 20분 · 심박 149~160 · 짧은 단어만 가능',
+      '⬇️ 쿨다운 5분',
+    ],
+    rpe:'템포 RPE 7 · 4회차 때보다 같은 강도가 편해졌을 것',
+    success:'20분 내내 같은 속도',
+    goal:'20분 페이스 유지',
+  },
+  {
+    name:'롱런',
+    focus:'지구력 저장고 키우기',
+    blocks:[
+      '🔵 50~60분 · 심박 130~145 · 대화 가능',
+      '⬇️ 마지막 5분 걷기 · 스트레칭 10분+',
+    ],
+    rpe:'RPE 5~6 · 60분 내내 같은 페이스',
+    success:'완주 · 후반에도 자세 유지',
+    goal:'완주 — 페이스 신경 X',
+  },
+  {
+    name:'숏 인터벌',
+    focus:'VO2max 자극 (8세트 도전)',
+    blocks:[
+      '🔵 워밍업 10분 · 심박 130~145',
+      '🔴 전력 1분 · 심박 172+ · 말 전혀 불가',
+      '🔵 회복 2분 · 빠른 걷기 · 심박 140↓',
+      '🔁 6~8세트',
+      '⬇️ 쿨다운 5분',
+    ],
+    rpe:'전력 RPE 9~10 · 폼 유지가 우선',
+    success:'목표 세트 완주 · 폼 유지',
+    goal:'8세트 완주 (처음엔 6세트도 OK)',
+  },
+  {
+    name:'VO2 인터벌',
+    focus:'심폐 상한 최대화 (4세트 완주)',
+    blocks:[
+      '🔵 워밍업 10분 · 심박 130~145',
+      '🔴 인터벌 4분 · 심박 160~172 · 한두 단어만 겨우',
+      '🔵 회복 3분 · 조깅 또는 빠른 걷기',
+      '🔁 4세트',
+      '⬇️ 쿨다운 5분 · 심박 120↓',
+    ],
+    rpe:'인터벌 RPE 8~9 · 표정 구겨질 정도',
+    success:'4세트 완주 · 마지막 세트도 같은 강도',
+    goal:'4세트 완주',
   },
 ];
 const RUN_META={
@@ -565,14 +645,37 @@ async function calcStreak(){let d=todayStr();if(!(await sGet(key(d)))?.finished)
 async function weekCount(){const ks=await sList('log:');const fr=addDays(todayStr(),-6);let n=0,sc=0;for(const k of ks){const d=k.slice(4);if(d>=fr&&d<=todayStr()){if(sc++>14)break;if((await sGet(k))?.finished)n++;}}return n;}
 async function findLastSession(type,before){const ks=await sList('log:');const ds=ks.map(k=>k.slice(4)).filter(d=>d<before).sort().reverse();for(let i=0;i<20&&i<ds.length;i++){const l=await sGet(key(ds[i]));if(l?.type===type&&l.ex)return l;}return null;}
 
-/* ---- 원판 계산 ---- */
-function plateCombo(side){side=Number(side)||0;if(side<=0)return '';let s=side,o=[];while(s>=10){o.push(10);s-=10;}while(s>=5){o.push(5);s-=5;}if(s>0)o.push(s);return o.join('+');}
+/* ---- 원판 조합 ----
+   양쪽에 동일하게 끼워야 하므로 한쪽 단위:
+   0 / 5 / 10 / 15(10+5) / 20(10+10) → 총 5단계
+   총 바벨 무게: 11.9 / 21.9 / 31.9 / 41.9 / 51.9
+*/
+const PLATE_STEPS=[0,5,10,15,20]; // 한쪽 원판 무게 (kg)
+function nextPlateStep(curSide){
+  const i=PLATE_STEPS.indexOf(Number(curSide));
+  if(i===-1){
+    // 현재 값이 steps에 없으면 가장 가까운 다음 단계
+    const next=PLATE_STEPS.find(s=>s>Number(curSide));
+    return next!=null?next:null;
+  }
+  return i<PLATE_STEPS.length-1?PLATE_STEPS[i+1]:null; // null = 최대
+}
+function plateCombo(side){
+  side=Number(side)||0;
+  if(side===0)return '빈봉만';
+  if(side===5)return '5kg';
+  if(side===10)return '10kg';
+  if(side===15)return '10+5kg';
+  if(side===20)return '10+10kg';
+  return side+'kg';
+}
 function loadHint(ex,side){
   if(ex.bw)return '';
   if(ex.bar){
-    if(!side||side<=0)return `<div class="exload">빈봉만 <span class="sub">원판 없이</span></div>`;
-    const c=plateCombo(side),cc=c.includes('+')?` (${c})`:'';
-    return `<div class="exload">원판 한쪽 <b>${side}kg</b>${cc} <span class="sub">· 빈봉 11.9kg 별도</span></div>`;
+    const s=Number(side)||0;
+    const label=s===0?'빈봉만':` 한쪽 <b>${s}kg</b> (${plateCombo(s)})`;
+    const total=(11.9+s*2).toFixed(1);
+    return `<div class="exload">${s===0?'빈봉만':'원판'+label} <span class="sub">· 총 ${total}kg</span></div>`;
   }
   return `<div class="exload">덤벨 <b>${ex.load}kg</b></div>`;
 }
@@ -686,12 +789,14 @@ function renderTodayCard(){
   }
   if(currentType==='RUN'){
     const runN=getRunIndex(viewDate);
-    const r=RUNS[((runN%RUNS.length)+RUNS.length)%RUNS.length];
+    const r=runWithCycleProgression(runN);
     const blocks=r.blocks.map((b,i)=>`<div class="rb"><span class="rbn">${i+1}</span><div>${b}</div></div>`).join('');
+    const cycle=Math.floor(runN/RUNS.length);
+    const cycleBadge=cycle>0?`<span style="font-size:10px;background:var(--teal-soft);color:var(--teal-d);padding:2px 7px;border-radius:6px;font-weight:700;margin-left:6px">${cycle+1}번째 사이클</span>`:'';
     $('#today').innerHTML=`
       <div class="t-top"><div>
-        <div class="t-eyb">오늘의 런닝</div>
-        <div class="t-title">${r.name}</div>
+        <div class="t-eyb">오늘의 런닝 · ${runN+1}회차</div>
+        <div class="t-title">${r.name}${cycleBadge}</div>
         <div class="t-goal">${r.focus}</div>
       </div>${ringSvg(pr.done,pr.total)}</div>
       <div class="rb-list">${blocks}</div>
@@ -718,10 +823,16 @@ function renderTodayCard(){
 }
 
 function getRunIndex(s){
-  const dd=diffDays(REF,s);let n=0;
-  for(let i=0;i<=Math.max(dd,0);i++){const ds=addDays(REF,i);if(scheduleType(ds)==='RUN'&&ds<=s)n++;}
-  if(dd<0){n=0;for(let i=dd;i<=0;i++){const ds=addDays(REF,i);if(scheduleType(ds)==='RUN')n++;}}
-  return n-1;
+  // REF(첫 날, A플랜)로부터 s까지 RUN 날이 몇 번째인지 (0-based)
+  // REF 자체는 A플랜이므로 첫 RUN은 REF+2일
+  const dd=diffDays(REF,s);
+  let n=0;
+  const limit=Math.max(dd,0);
+  for(let i=0;i<=limit;i++){
+    const ds=addDays(REF,i);
+    if(scheduleType(ds)==='RUN') n++;
+  }
+  return Math.max(0,n-1); // 0-based
 }
 function calcVol(){
   if(currentType!=='A'&&currentType!=='B')return 0;
@@ -789,6 +900,103 @@ function renderPlanInfo(){
     <div class="pi-row"><div class="pi-k">📅 사이클</div><div class="pi-v">A → B → 런닝 → A → B → 런닝 ... (일요일 건너뜀)</div></div>`;
 }
 
+/* ---- 점진적 과부하 가이드 ----
+   바벨: 모든 세트 목표 rep 달성 → PLATE_STEPS 다음 단계 (양쪽 +10kg)
+   맨몸: 총 rep 달성 → 다음 회 +1회
+   덤벨: 목표 달성 → +2.5kg (보유 덤벨 5kg뿐이라 참고용)
+*/
+function progressionGuide(ex, lastEx){
+  if(!lastEx?.sets || lastEx.sets.length===0) return null;
+  const repStr=String(ex.reps);
+  const targetMax=parseInt(repStr.split('-')[1]||repStr)||0;
+  const sets=lastEx.sets.filter(s=>s&&(s.done||s.r));
+  if(sets.length<ex.sets) return null;
+
+  if(ex.bw){
+    const totalRep=sets.reduce((a,s)=>a+(Number(s.r)||0),0);
+    const avgRep=Math.round(totalRep/sets.length);
+    const hitTarget=totalRep>=(targetMax*ex.sets);
+    return hitTarget
+      ?{type:'rep',val:avgRep+1,msg:`지난 평균 ${avgRep}회 → 이번엔 ${avgRep+1}회 도전 ⬆️`}
+      :{type:'rep',val:avgRep,msg:`지난 평균 ${avgRep}회 유지`};
+  } else {
+    const lastW=Math.max(0,...sets.map(s=>Number(s.w)||0));
+    const allHitMax=sets.every(s=>(Number(s.r)||0)>=targetMax);
+    if(ex.bar){
+      if(allHitMax&&lastW>=0){
+        const next=nextPlateStep(lastW);
+        if(next==null) return {type:'weight',val:lastW,msg:`최대 무게 도달 🏆 세트 늘리거나 템포로 강도 올리기`};
+        const total=(11.9+next*2).toFixed(1);
+        return {type:'weight',val:next,msg:`⬆️ 한쪽 ${next}kg (${plateCombo(next)}) · 총 ${total}kg 으로 올려봐요`};
+      } else {
+        const total=lastW>=0?(11.9+lastW*2).toFixed(1):'?';
+        return lastW>=0
+          ?{type:'weight',val:lastW,msg:`한쪽 ${lastW}kg 유지 · 모든 세트 ${targetMax}회 채우면 올려요`}
+          :null;
+      }
+    } else {
+      // 덤벨
+      if(allHitMax&&lastW>0) return {type:'weight',val:lastW+2.5,msg:`⬆️ 덤벨 ${lastW+2.5}kg 으로 올려봐요`};
+      return lastW>0?{type:'weight',val:lastW,msg:`${lastW}kg 유지`}:null;
+    }
+  }
+}
+
+/* ---- 런닝 사이클별 난이도 증가 ----
+   RUNS 배열(12개)을 한 사이클(12회)로 봄
+   2번째 사이클부터 각 세션의 거리/세트를 progressively 늘림
+   cycle=0: 기본, cycle=1: +5~10분 or +1세트, cycle=2+: 추가 강화
+*/
+function runWithCycleProgression(runIdx){
+  const CYCLE_LEN=RUNS.length; // 12
+  const cycle=Math.floor(runIdx/CYCLE_LEN);
+  const r={...RUNS[runIdx%CYCLE_LEN]};
+  if(cycle===0) return r; // 첫 사이클은 그대로
+
+  // 사이클별 증가 메시지 주입
+  const cycleLabel=cycle===1?'2번째 사이클':cycle===2?'3번째 사이클':`${cycle+1}번째 사이클`;
+  const upgrades=[
+    // 이지런1: 분 늘리기
+    ()=>({...r,focus:r.focus,goal:`${r.goal} (+${cycle*5}분)`,
+      blocks:r.blocks.map(b=>b.replace(/25~30분/,`${25+cycle*5}~${30+cycle*5}분`).replace(/30~35분/,`${30+cycle*5}~${35+cycle*5}분`))}),
+    // 이지런2: 분 늘리기
+    ()=>({...r,goal:`${r.goal} (+${cycle*5}분)`,
+      blocks:r.blocks.map(b=>b.replace(/30~35분/,`${30+cycle*5}~${35+cycle*5}분`))}),
+    // 스트라이드: 횟수 늘리기
+    ()=>({...r,goal:`스트라이드 ${4+cycle*2}회 경쾌하게`,
+      blocks:r.blocks.map(b=>b.replace('4회','·'.repeat(0)+`${4+cycle*2}회`))}),
+    // 템포: 템포 구간 늘리기
+    ()=>({...r,goal:`${15+cycle*5}분 페이스 유지`,
+      blocks:r.blocks.map(b=>b.replace(/15분|20분/,`${15+cycle*5}분`))}),
+    // 숏인터벌: 세트 늘리기
+    ()=>({...r,goal:`${4+cycle*2}세트 완주`,
+      blocks:r.blocks.map(b=>b.replace(/4세트만 \(첫 인터벌\)/,`${4+cycle*2}세트`))}),
+    // VO2: 세트 늘리기
+    ()=>({...r,goal:`${3+cycle}세트 완주`,
+      blocks:r.blocks.map(b=>b.replace(/3세트 \(익숙해지면 4세트\)/,`${3+cycle}세트`))}),
+    // 이지런(반복): 분 늘리기
+    ()=>({...r,goal:`${r.goal} (+${cycle*5}분)`,
+      blocks:r.blocks.map(b=>b.replace(/35~40분/,`${35+cycle*5}~${40+cycle*5}분`))}),
+    // 스트라이드(반복): 횟수 늘리기
+    ()=>({...r,goal:`스트라이드 ${6+cycle*2}회 경쾌하게`,
+      blocks:r.blocks.map(b=>b.replace(/6회/,`${6+cycle*2}회`))}),
+    // 템포(반복): 구간 늘리기
+    ()=>({...r,goal:`${20+cycle*5}분 페이스 유지`,
+      blocks:r.blocks.map(b=>b.replace(/20분/,`${20+cycle*5}분`))}),
+    // 롱런: 분 늘리기
+    ()=>({...r,goal:`완주 — 페이스 신경 X`,
+      blocks:r.blocks.map(b=>b.replace(/50~60분/,`${50+cycle*10}~${60+cycle*10}분`))}),
+    // 숏인터벌(반복): 세트 늘리기
+    ()=>({...r,goal:`${6+cycle*2}~${8+cycle*2}세트 완주`,
+      blocks:r.blocks.map(b=>b.replace(/6~8세트/,`${6+cycle*2}~${8+cycle*2}세트`))}),
+    // VO2(반복): 세트 늘리기
+    ()=>({...r,goal:`${4+cycle}세트 완주`,
+      blocks:r.blocks.map(b=>b.replace(/4세트/,`${4+cycle}세트`))}),
+  ];
+  const upgraded=upgrades[runIdx%CYCLE_LEN]?.()??r;
+  return {...upgraded,focus:`${upgraded.focus} · ${cycleLabel}`};
+}
+
 /* 운동 카드 렌더 */
 function ensureSet(id,i){if(!logCache.ex[id])logCache.ex[id]={sets:[]};if(!logCache.ex[id].sets)logCache.ex[id].sets=[];while(logCache.ex[id].sets.length<=i)logCache.ex[id].sets.push({});return logCache.ex[id].sets[i];}
 function markExComplete(card){const ch=[...card.querySelectorAll('.check')];card.classList.toggle('complete',ch.length>0&&ch.every(c=>c.classList.contains('on')));card.classList.remove('now');}
@@ -797,13 +1005,28 @@ function renderStrength(list){
   p.ex.forEach(ex=>{
     const saved=logCache.ex[ex.id];
     const lastEx=lastSession?.ex?.[ex.id];
-    const prefW=lastEx?.sets?.find(s=>s?.w)?.w??ex.load??null;
+
+    // 점진적 과부하 가이드 계산
+    const guide=progressionGuide(ex, lastEx);
+    // 입력칸 기본값: 오늘 이미 입력값 > 가이드 > 지난 무게 > 프로그램 기본값
+    const prefW = ex.bw ? null
+      : (guide?.type==='weight' ? guide.val
+      : (lastEx?.sets?.find(s=>s?.w)?.w ?? ex.load ?? null));
+    const prefR = ex.bw && guide?.type==='rep' ? guide.val : null;
+
     const done=exDone(ex);const isNow=!done&&firstInc;if(!done)firstInc=false;
     const card=document.createElement('div');card.className='ex'+(done?' complete':(isNow?' now':''));
     const nb=isNow?'<span class="b-now">NOW</span>':'';const prb=isPR(ex)?'<span class="b-pr">🏆 신기록</span>':'';
     let h=`<div class="exhead"><div class="exname">${nb}${ex.name}${prb}</div><div class="exscheme">${ex.sets}×${ex.reps}</div></div>`;
-    h+=loadHint(ex,ex.bar?(prefW??ex.load):ex.load);
+    h+=loadHint(ex, ex.bar?(prefW??ex.load):ex.load);
     if(ex.note)h+=`<div class="exnote">💡 ${ex.note}</div>`;
+
+    // 점진적 과부하 가이드 배지
+    if(guide){
+      const arrow = guide.msg.includes('올려봐요') ? '⬆️' : '→';
+      h+=`<div style="margin-top:6px;font-size:11.5px;font-weight:700;color:var(--teal-d);background:var(--teal-soft);padding:5px 9px;border-radius:8px;display:inline-block">${arrow} ${guide.msg}</div>`;
+    }
+
     if(lastEx?.sets?.some(s=>s?.w||s?.r)){
       const parts=lastEx.sets.filter(s=>s?.w||s?.r).map(s=>ex.bw?`${s.r||'-'}회`:`${s.w||'-'}×${s.r||'-'}`);
       h+=`<div class="exref"><b>지난 기록</b> ${parts.join(' · ')}${ex.bar?' (한쪽)':''}</div>`;
@@ -811,15 +1034,18 @@ function renderStrength(list){
     h+='<div class="sets">';
     for(let i=0;i<ex.sets;i++){
       const sv=saved?.sets?.[i]||{};
-      if(ex.bw)h+=`<div class="setrow"><div class="setno">${i+1}</div><div class="field"><input inputmode="numeric" data-k="r" data-i="${i}" value="${sv.r??''}" placeholder="${ex.reps}"><span class="unit">회</span></div>${checkSvg(sv.done)}</div>`;
-      else h+=`<div class="setrow"><div class="setno">${i+1}</div><div class="field"><input inputmode="decimal" data-k="w" data-i="${i}" value="${sv.w??(prefW??'')}"><span class="unit">${ex.bar?'kg·쪽':'kg'}</span></div><div class="field"><input inputmode="numeric" data-k="r" data-i="${i}" value="${sv.r??''}" placeholder="${ex.reps}"><span class="unit">회</span></div>${checkSvg(sv.done)}</div>`;
+      // 오늘 이미 입력한 값 우선, 없으면 가이드값으로 프리필
+      const wVal = sv.w !== undefined ? sv.w : (prefW ?? '');
+      const rVal = sv.r !== undefined ? sv.r : (prefR ? String(prefR) : '');
+      if(ex.bw)h+=`<div class="setrow"><div class="setno">${i+1}</div><div class="field"><input inputmode="numeric" data-k="r" data-i="${i}" value="${rVal}" placeholder="${prefR||ex.reps}"><span class="unit">회</span></div>${checkSvg(sv.done)}</div>`;
+      else h+=`<div class="setrow"><div class="setno">${i+1}</div><div class="field"><input inputmode="decimal" data-k="w" data-i="${i}" value="${wVal}"><span class="unit">${ex.bar?'kg·쪽':'kg'}</span></div><div class="field"><input inputmode="numeric" data-k="r" data-i="${i}" value="${rVal}" placeholder="${ex.reps}"><span class="unit">회</span></div>${checkSvg(sv.done)}</div>`;
     }
     h+='</div>';card.innerHTML=h;
     card.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',()=>{ensureSet(ex.id,+inp.dataset.i)[inp.dataset.k]=inp.value;refreshCard();scheduleSave();}));
     card.querySelectorAll('.check').forEach((btn,i)=>btn.addEventListener('click',()=>{
       const wasPR=isPR(ex);const s=ensureSet(ex.id,i);s.done=!s.done;btn.classList.toggle('on',s.done);
       if(s.done){
-        if(!ex.bw){const wi=card.querySelectorAll('input[data-k="w"]')[i];if(wi?.value===''&&prefW){wi.value=prefW;s.w=String(prefW);}}
+        if(!ex.bw){const wi=card.querySelectorAll('input[data-k="w"]')[i];if(wi&&!wi.value&&prefW){wi.value=prefW;s.w=String(prefW);}}
         startTimer(lastRest);
         if(!wasPR&&isPR(ex)){toast('🏆 신기록! '+ex.name);const b=card.querySelector('.exname');if(b&&!b.querySelector('.b-pr'))b.insertAdjacentHTML('beforeend','<span class="b-pr">🏆 신기록</span>');}
       }
@@ -879,6 +1105,9 @@ async function renderToday(){
 
   renderTodayCard();
 
+  // 체중/수분은 today 카드 위에 있으므로 먼저 렌더
+  renderWeight();renderWater();
+
   // 스트레칭 섹션: REST면 전후 모두 숨김 + 간단 이완 안내 표시
   const strPreLabel=$('#stretchPre').previousElementSibling;
   const strPostLabel=$('#stretchPost').previousElementSibling;
@@ -901,7 +1130,6 @@ async function renderToday(){
     renderStretchCard($('#stretchPost'),'post',strType,'stretchPost');
   }
   renderFinisher();
-  renderWater();renderWeight();
   $('#note').value=logCache.note||'';
 
   // 완료 버튼
