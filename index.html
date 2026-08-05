@@ -357,7 +357,7 @@ input{font-family:var(--mono);}
 
 <!-- ===== 달력 뷰 ===== -->
 <div id="view-cal" class="hidden">
-  <div class="top"><div class="brand"><div class="b1">🔥 아빠파이어</div><div class="b2">기록 달력</div></div></div>
+  <div class="top"><div class="brand"><div class="b1">아빠는 헤라클래스🔥</div><div class="b2">기록 달력</div></div></div>
   <div class="calhead">
     <button class="navbtn" id="calPrev">‹</button>
     <div class="calmonth" id="calMonth">—<span class="yr" id="calYear"></span></div>
@@ -752,10 +752,10 @@ function computeProgress(){
   return{done:items.filter(i=>i.d).length,total:items.length};
 }
 function nextItemName(){
-  if(!logCache.stretchPre)return '운동 전 스트레칭';
+  if(!logCache.stretchPre)return '스트레칭(운동전)';
   if(currentType==='RUN'&&!logCache.run?.done)return '런닝 다녀오기';
   if(currentType==='A'||currentType==='B'){const ex=(PLANS[currentType].ex||[]).find(e=>!exDone(e));if(ex)return ex.name;}
-  if(!logCache.stretchPost)return '운동 후 스트레칭';
+  if(!logCache.stretchPost)return '스트레칭(운동후)';
   return '오늘 완료! 🎉';
 }
 function ringSvg(done,total){const r=23,c=2*Math.PI*r,off=c*(1-(total?done/total:0));return `<svg class="ring" viewBox="0 0 54 54"><circle class="ring-bg" cx="27" cy="27" r="${r}"/><circle class="ring-fg" cx="27" cy="27" r="${r}" style="stroke-dasharray:${c};stroke-dashoffset:${off}"/><text class="ring-t" x="27" y="27">${done}/${total}</text></svg>`;}
