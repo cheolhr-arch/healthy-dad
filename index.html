@@ -403,7 +403,7 @@ input{font-family:var(--mono);}
 </div></div>
 
 <script>
-/* ===== 🔥 아빠는 헤라클래스🔥 · 수피 F1-2 ===== */
+/* ===== 아빠는 헤라클래스🔥 · 수피 F1-2 ===== */
 const REF='2026-08-04'; // 첫 운동 (A플랜)
 const WATER_GOAL=8;
 const BAR=11.9;
@@ -417,15 +417,76 @@ const DOW=['일','월','화','수','목','금','토'];
 function dowOf(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d).getDay();}
 function isSun(s){return dowOf(s)===0;}
 
-/* ---- 스케줄 (일요일=REST, A→B→RUN 반복) ---- */
-function scheduleType(s){
-  if(isSun(s)) return 'REST';
+/* ---- 스케줄 ----
+   기본 사이클 (4일): A → RUN → B → RUN → 반복
+   매주 수요일(3)은 고정 REST (평일 가운데 휴식)
+   REF=2026-08-04(화) → A플랜 시작
+   
+   "쉬면 밀기"는 logCache.override='REST'로 저장되고,
+   다음날 로드 시 prev날 로그를 보고 밀린 타입을 계산
+*/
+const CYCLE_SEQ=['A','RUN','B','RUN']; // 4일 반복
+const REST_DOW=3; // 수요일 고정 휴식
+
+function baseSchedule(s){
+  if(dowOf(s)===REST_DOW) return 'REST';
+  // REF부터 s까지 REST 아닌 날 카운트
   const dd=diffDays(REF,s);
   let wi=0;
-  if(dd>=0){for(let i=0;i<dd;i++){if(!isSun(addDays(REF,i)))wi++;}}
-  else{for(let i=dd;i<0;i++){if(!isSun(addDays(REF,i)))wi--;}}
-  const idx=((wi%3)+3)%3;
-  return idx===0?'A':idx===1?'B':'RUN';
+  if(dd>=0){
+    for(let i=0;i<dd;i++){if(dowOf(addDays(REF,i))!==REST_DOW)wi++;}
+  } else {
+    for(let i=dd;i<0;i++){if(dowOf(addDays(REF,i))!==REST_DOW)wi--;}
+  }
+  const idx=((wi%4)+4)%4;
+  return CYCLE_SEQ[idx];
+}
+
+// 날짜별 실제 타입 계산 (밀기 이력 반영)
+// pushed: {date→type} 맵 — 밀린 운동들
+async function resolveType(s, pushed){
+  // 고정 REST일
+  if(dowOf(s)===REST_DOW) return 'REST';
+  // 이 날짜로 밀려온 운동이 있으면 우선
+  if(pushed&&pushed[s]) return pushed[s];
+  // 없으면 기본 스케줄
+  return baseSchedule(s);
+}
+
+// 오늘까지의 "밀기 이력" 빌드: REF부터 targetDate까지 순서대로 로그 확인
+async function buildPushedMap(targetDate){
+  const pushed={};
+  let d=REF;
+  let pendingType=null; // 쉬어서 다음날로 밀린 타입
+  while(d<=targetDate){
+    // 고정 REST일은 스킵 (밀리지 않음)
+    if(dowOf(d)===REST_DOW){d=addDays(d,1);continue;}
+    // 오늘 날의 원래 타입 (밀려온 것 포함)
+    let todayType=pendingType||baseSchedule(d);
+    pendingType=null;
+    const log=await sGet(key(d));
+    const ov=log?.override;
+    if(ov==='REST'){
+      // 쉬겠다 → todayType을 다음날로 밀기
+      pushed[d]='REST';
+      let nextD=addDays(d,1);
+      // 다음 고정 REST일은 건너뜀
+      while(dowOf(nextD)===REST_DOW)nextD=addDays(nextD,1);
+      pendingType=todayType;
+    } else if(ov&&ov!==todayType){
+      // 수동 override (A/B/RUN)
+      pushed[d]=ov;
+    } else {
+      pushed[d]=todayType;
+    }
+    d=addDays(d,1);
+  }
+  return pushed;
+}
+
+// 런닝날 "집에서 할게요" → 반대 웨이트 + 다음날 런닝 확보
+function nextWeightType(currentAorB){
+  return currentAorB==='A'?'B':'A';
 }
 
 /* ---- 운동 데이터 ---- */
@@ -726,48 +787,40 @@ function renderHead(){
 }
 
 function renderModebar(){
-  const base=scheduleType(viewDate);
-  const ov=logCache.override||null; // 'A'|'B'|'RUN'|'REST'|null
   const bar=$('#modebar');bar.innerHTML='';
-  // 현재 기본 타입에 따라 버튼 구성
-  if(base==='REST'){
-    // 휴식일은 버튼 없음
-    return;
-  }
-  // 🌧️ 비와요 / ☀️ 런닝으로 (런닝날에만)
-  if(base==='RUN'){
-    const isRain=ov==='A'||ov==='B';
-    const rb=document.createElement('button');
-    rb.className='modebtn '+(isRain?'gym':'rain');
-    rb.textContent=isRain?'☀️ 런닝으로 되돌리기':'🌧️ 비 와요 — 실내로 전환';
-    rb.onclick=async()=>{
-      if(isRain){logCache.override=null;}
-      else{const next=scheduleType(addDays(viewDate,1));logCache.override=(next==='A'||next==='B')?next:'A';}
-      await sSet(key(viewDate),logCache);renderToday();
+  const ov=logCache.override||null;
+  const base=logCache._baseType||'A';
+  const cur=ov||base;
+  bar.classList.remove('hidden');
+
+  const btns=[
+    {type:'A',  label:'💪 A플랜',  cls:'gym'},
+    {type:'B',  label:'🏋️ B플랜',  cls:'gym'},
+    {type:'RUN',label:'🏃 런닝',    cls:'run'},
+    {type:'REST',label:'😴 쉴게요', cls:'rest'},
+  ];
+  btns.forEach(({type,label,cls})=>{
+    const btn=document.createElement('button');
+    const isOn=cur===type;
+    btn.className=`modebtn ${cls}${isOn?' on':''}`;
+    btn.style.cssText=isOn?'opacity:1;box-shadow:0 0 0 2px currentColor;':'opacity:.7;';
+    btn.textContent=isOn?`✓ ${label}`:label;
+    btn.onclick=async()=>{
+      if(isOn){
+        // 이미 선택된 것 누르면 기본값으로 복귀
+        logCache.override=null;
+      } else {
+        logCache.override=type;
+        // 런닝날에 웨이트 선택 → 다음날이 런닝 스케줄이 되도록 nextDayRun 플래그
+        if(base==='RUN'&&(type==='A'||type==='B')){
+          logCache._rainSwapNext='RUN';
+        }
+      }
+      await sSet(key(viewDate),logCache);
+      await loadAndRender();
     };
-    bar.appendChild(rb);
-  } else {
-    // 웨이트날 → 런닝으로 전환
-    const isRunOv=ov==='RUN';
-    const rb=document.createElement('button');
-    rb.className='modebtn '+(isRunOv?'gym':'run');
-    rb.textContent=isRunOv?'🏋️ 웨이트로 되돌리기':'🏃 오늘 달리고 싶어요';
-    rb.onclick=async()=>{
-      logCache.override=isRunOv?null:'RUN';
-      await sSet(key(viewDate),logCache);renderToday();
-    };
-    bar.appendChild(rb);
-  }
-  // 😴 오늘 쉴게요 버튼 (항상)
-  const isRest=ov==='REST';
-  const sb=document.createElement('button');
-  sb.className='modebtn rest'+(isRest?' on':'');
-  sb.textContent=isRest?'😴 쉬는 중 — 취소':'😴 오늘은 쉴게요';
-  sb.onclick=async()=>{
-    logCache.override=isRest?null:'REST';
-    await sSet(key(viewDate),logCache);renderToday();
-  };
-  bar.appendChild(sb);
+    bar.appendChild(btn);
+  });
 }
 
 async function renderStats(){
@@ -823,16 +876,13 @@ function renderTodayCard(){
 }
 
 function getRunIndex(s){
-  // REF(첫 날, A플랜)로부터 s까지 RUN 날이 몇 번째인지 (0-based)
-  // REF 자체는 A플랜이므로 첫 RUN은 REF+2일
   const dd=diffDays(REF,s);
   let n=0;
-  const limit=Math.max(dd,0);
-  for(let i=0;i<=limit;i++){
+  for(let i=0;i<=Math.max(dd,0);i++){
     const ds=addDays(REF,i);
-    if(scheduleType(ds)==='RUN') n++;
+    if(baseSchedule(ds)==='RUN') n++;
   }
-  return Math.max(0,n-1); // 0-based
+  return Math.max(0,n-1);
 }
 function calcVol(){
   if(currentType!=='A'&&currentType!=='B')return 0;
@@ -1080,14 +1130,15 @@ function renderRun(list){
 function refreshCard(){renderTodayCard();}
 
 async function renderToday(){
-  const base=scheduleType(viewDate);
+  const base=logCache._baseType||baseSchedule(viewDate);
   const ov=logCache.override||null;
-  // 실제 오늘 타입: override 있으면 그걸로
-  if(ov==='REST')currentType='REST';
-  else if(ov==='RUN')currentType='RUN';
-  else if(ov==='A')currentType='A';
-  else if(ov==='B')currentType='B';
-  else currentType=base;
+
+  // 수요일 기본 REST이지만 override 있으면 그걸 우선
+  if(dowOf(viewDate)===REST_DOW && !ov){
+    currentType='REST';
+  } else {
+    currentType=ov||base;
+  }
 
   setAccent(currentType);renderHead();renderModebar();
 
@@ -1300,9 +1351,17 @@ async function loadAndRender(){
   logCache=raw||{};
   logCache.ex=logCache.ex||{};
   logCache.run=logCache.run||{};
-  const base=scheduleType(viewDate);
-  if(!logCache.type)logCache.type=base;
-  lastSession=await findLastSession(logCache.override||base,viewDate);
+
+  // 이 날의 기본 타입 계산 (밀기 이력 반영)
+  const pushed=await buildPushedMap(viewDate);
+  const baseType=pushed[viewDate]||baseSchedule(viewDate);
+  logCache._baseType=baseType;
+
+  // 실제 타입: override 있으면 그걸로
+  const ov=logCache.override;
+  if(!logCache.type)logCache.type=ov||baseType;
+
+  lastSession=await findLastSession(ov||baseType,viewDate);
   await renderToday();
 }
 
