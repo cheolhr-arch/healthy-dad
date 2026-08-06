@@ -688,10 +688,26 @@ const LEVELS=[
 function levelFor(t){let c=LEVELS[0];for(const L of LEVELS)if(t>=L.min)c=L;const n=LEVELS.find(L=>L.min>t);return{cur:c,next:n};}
 
 /* ---- 저장소 ---- */
-const _m={};const _hs=typeof window!=='undefined'&&window.storage&&typeof window.storage.get==='function';
-async function sGet(k){if(!_hs)return _m[k]??null;try{const r=await window.storage.get(k,false);return r?JSON.parse(r.value):null;}catch{return null;}}
-async function sSet(k,v){if(!_hs){_m[k]=v;return;}try{await window.storage.set(k,JSON.stringify(v),false);}catch{}}
-async function sList(p){if(!_hs)return Object.keys(_m).filter(k=>k.startsWith(p));try{const r=await window.storage.list(p,false);return r?.keys??[];}catch{return[];}}
+const _m={};
+function sGet(k){
+  try{const v=localStorage.getItem(k);return Promise.resolve(v?JSON.parse(v):null);}
+  catch{return Promise.resolve(_m[k]??null);}
+}
+function sSet(k,v){
+  try{localStorage.setItem(k,JSON.stringify(v));}
+  catch{_m[k]=v;}
+  return Promise.resolve();
+}
+function sList(p){
+  try{
+    const keys=[];
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k&&k.startsWith(p))keys.push(k);
+    }
+    return Promise.resolve(keys);
+  }catch{return Promise.resolve(Object.keys(_m).filter(k=>k.startsWith(p)));}
+}
 const key=s=>'log:'+s;
 
 /* ---- 상태 ---- */
