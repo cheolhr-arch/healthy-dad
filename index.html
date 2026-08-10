@@ -1516,7 +1516,8 @@ function switchTab(t){
 async function loadAndRender(){
   // 1. 기본 타입 먼저 계산
   const pushed=await buildPushedMap(viewDate);
-  const baseType=pushed[viewDate]||baseSchedule(viewDate);
+ const baseType=pushed[viewDate]||baseSchedule(viewDate);
+console.log('오늘날짜:', viewDate, '→ baseType:', baseType, 'pushed:', pushed);
 
   // 2. 저장 데이터 로드
   const raw=await sGet(key(viewDate));
