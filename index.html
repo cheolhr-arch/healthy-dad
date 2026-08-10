@@ -455,33 +455,34 @@ async function resolveType(s, pushed){
 
 async function buildPushedMap(targetDate){
   const pushed={};
+  let cycleIdx=0; // REF 첫날(A)부터 시작
   let d=REF;
-  let nextExpected=null;
 
   while(d<=targetDate){
-    if(dowOf(d)===REST_DOW){d=addDays(d,1);continue;}
+    // 수요일 고정 REST — cycleIdx 소비 안 함
+    if(dowOf(d)===REST_DOW){
+      pushed[d]='REST';
+      d=addDays(d,1);
+      continue;
+    }
 
-    const base=nextExpected||baseSchedule(d);
-    nextExpected=null;
-
+    const base=CYCLE_SEQ[cycleIdx%4];
     const log=await sGet(key(d));
     const ov=log?.override;
 
     if(ov==='REST'){
+      // 쉬면 cycleIdx 소비 안 함 → 다음날 같은 base 반복
       pushed[d]='REST';
-      nextExpected=base;
-    } else if(ov&&ov!==base){
-      pushed[d]=ov;
-      nextExpected=base;
     } else {
-      pushed[d]=base;
+      // override든 아니든 이 자리의 사이클은 소비
+      pushed[d]=ov||base;
+      cycleIdx++;
     }
 
     d=addDays(d,1);
   }
   return pushed;
 }
-
 // 런닝날 "집에서 할게요" → 반대 웨이트 + 다음날 런닝 확보
 function nextWeightType(currentAorB){
   return currentAorB==='A'?'B':'A';
