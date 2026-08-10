@@ -457,27 +457,29 @@ async function resolveType(s, pushed){
 async function buildPushedMap(targetDate){
   const pushed={};
   let d=REF;
-  let pendingType=null; // 쉬어서 다음날로 밀린 타입
+  let pendingType=null;
   while(d<=targetDate){
-    // 고정 REST일은 스킵 (밀리지 않음)
     if(dowOf(d)===REST_DOW){d=addDays(d,1);continue;}
-    // 오늘 날의 원래 타입 (밀려온 것 포함)
-    let todayType=pendingType||baseSchedule(d);
+    
+    const baseType=pendingType||baseSchedule(d);
     pendingType=null;
+    
     const log=await sGet(key(d));
     const ov=log?.override;
+    
     if(ov==='REST'){
-      // 쉬겠다 → todayType을 다음날로 밀기
+      // 쉬겠다 → 오늘 할 운동을 다음날로 밀기
       pushed[d]='REST';
       let nextD=addDays(d,1);
-      // 다음 고정 REST일은 건너뜀
-      while(dowOf(nextD)===REST_DOW)nextD=addDays(nextD,1);
-      pendingType=todayType;
-    } else if(ov&&ov!==todayType){
-      // 수동 override (A/B/RUN)
+      while(dowOf(nextD)===REST_DOW) nextD=addDays(nextD,1);
+      pendingType=baseType; // 오늘 baseType을 다음날로
+    } else if(ov&&ov!==baseType){
+      // 수동 전환 (예: 웨이트날에 RUN, RUN날에 웨이트)
+      // → 이 날만 override 적용, 순서는 baseType 기준으로 유지
       pushed[d]=ov;
+      // pendingType 건드리지 않음 = 다음날은 원래 스케줄대로
     } else {
-      pushed[d]=todayType;
+      pushed[d]=baseType;
     }
     d=addDays(d,1);
   }
@@ -1100,37 +1102,35 @@ function renderPlanInfo(){
    덤벨: 목표 달성 → +2.5kg (보유 덤벨 5kg뿐이라 참고용)
 */
 function progressionGuide(ex, lastEx){
-  if(!lastEx?.sets || lastEx.sets.length===0) return null;
+  if(!lastEx?.sets||lastEx.sets.length===0) return null;
   const repStr=String(ex.reps);
-  const targetMax=parseInt(repStr.split('-')[1]||repStr)||0;
-  const sets=lastEx.sets.filter(s=>s&&(s.done||s.r));
+  const targetMax=parseInt(repStr.split('+')[0].split('-').pop())||0;
+  const sets=lastEx.sets.filter(s=>s&&s.r); // 횟수 기록 있는 세트만
   if(sets.length<ex.sets) return null;
 
   if(ex.bw){
     const totalRep=sets.reduce((a,s)=>a+(Number(s.r)||0),0);
     const avgRep=Math.round(totalRep/sets.length);
-    const hitTarget=totalRep>=(targetMax*ex.sets);
+    const hitTarget=sets.every(s=>(Number(s.r)||0)>=targetMax);
     return hitTarget
       ?{type:'rep',val:avgRep+1,msg:`지난 평균 ${avgRep}회 → 이번엔 ${avgRep+1}회 도전 ⬆️`}
       :{type:'rep',val:avgRep,msg:`지난 평균 ${avgRep}회 유지`};
   } else {
     const lastW=Math.max(0,...sets.map(s=>Number(s.w)||0));
-    const allHitMax=sets.every(s=>(Number(s.r)||0)>=targetMax);
+    const allHitMax=sets.length>=ex.sets&&sets.every(s=>(Number(s.r)||0)>=targetMax);
     if(ex.bar){
-      if(allHitMax&&lastW>=0){
+      if(allHitMax){
         const next=nextPlateStep(lastW);
-        if(next==null) return {type:'weight',val:lastW,msg:`최대 무게 도달 🏆 세트 늘리거나 템포로 강도 올리기`};
+       if(next==null){const newRep=targetMax+2;return {type:'rep',val:newRep,msg:`최대 무게 도달 🏆 → 횟수 ${targetMax}→${newRep}회로 늘려요`};}
         const total=(11.9+next*2).toFixed(1);
-        return {type:'weight',val:next,msg:`⬆️ 한쪽 ${next}kg (${plateCombo(next)}) · 총 ${total}kg 으로 올려봐요`};
+        return {type:'weight',val:next,msg:`⬆️ 한쪽 ${next}kg (${plateCombo(next)}) · 총 ${total}kg`};
       } else {
-        const total=lastW>=0?(11.9+lastW*2).toFixed(1):'?';
-        return lastW>=0
-          ?{type:'weight',val:lastW,msg:`한쪽 ${lastW}kg 유지 · 모든 세트 ${targetMax}회 채우면 올려요`}
-          :null;
+        if(lastW===0) return {type:'weight',val:0,msg:`빈봉으로 폼 익히기 중`};
+        const total=(11.9+lastW*2).toFixed(1);
+        return {type:'weight',val:lastW,msg:`한쪽 ${lastW}kg 유지 · 모든 세트 ${targetMax}회 채우면 올려요`};
       }
     } else {
-      // 덤벨
-      if(allHitMax&&lastW>0) return {type:'weight',val:lastW+2.5,msg:`⬆️ 덤벨 ${lastW+2.5}kg 으로 올려봐요`};
+      if(allHitMax&&lastW>0) return {type:'weight',val:lastW+2.5,msg:`⬆️ 덤벨 ${lastW+2.5}kg`};
       return lastW>0?{type:'weight',val:lastW,msg:`${lastW}kg 유지`}:null;
     }
   }
@@ -1228,9 +1228,9 @@ function renderStrength(list){
     h+='<div class="sets">';
     for(let i=0;i<ex.sets;i++){
       const sv=saved?.sets?.[i]||{};
-      // 오늘 이미 입력한 값 우선, 없으면 가이드값으로 프리필
-      const wVal = sv.w !== undefined ? sv.w : (prefW ?? '');
-      const rVal = sv.r !== undefined ? sv.r : (prefR ? String(prefR) : '');
+      // 오늘 입력값 > 가이드값 > 지난기록 > 프로그램 기본값 순
+const wVal = sv.w !== undefined ? sv.w : (prefW!=null ? String(prefW) : '');
+const rVal = sv.r !== undefined ? sv.r : (prefR!=null ? String(prefR) : '');
       if(ex.bw)h+=`<div class="setrow"><div class="setno">${i+1}</div><div class="field"><input inputmode="numeric" data-k="r" data-i="${i}" value="${rVal}" placeholder="${prefR||ex.reps}"><span class="unit">회</span></div>${checkSvg(sv.done)}</div>`;
       else h+=`<div class="setrow"><div class="setno">${i+1}</div><div class="field"><input inputmode="decimal" data-k="w" data-i="${i}" value="${wVal}"><span class="unit">${ex.bar?'kg·쪽':'kg'}</span></div><div class="field"><input inputmode="numeric" data-k="r" data-i="${i}" value="${rVal}" placeholder="${ex.reps}"><span class="unit">회</span></div>${checkSvg(sv.done)}</div>`;
     }
@@ -1238,9 +1238,27 @@ function renderStrength(list){
     card.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',()=>{ensureSet(ex.id,+inp.dataset.i)[inp.dataset.k]=inp.value;refreshCard();scheduleSave();}));
     card.querySelectorAll('.check').forEach((btn,i)=>btn.addEventListener('click',()=>{
       const wasPR=isPR(ex);const s=ensureSet(ex.id,i);s.done=!s.done;btn.classList.toggle('on',s.done);
-      if(s.done){
-        if(!ex.bw){const wi=card.querySelectorAll('input[data-k="w"]')[i];if(wi&&!wi.value&&prefW){wi.value=prefW;s.w=String(prefW);}}
-        startTimer(lastRest);
+if(s.done){
+  if(!ex.bw){
+    const wi=card.querySelectorAll('input[data-k="w"]')[i];
+    const ri=card.querySelectorAll('input[data-k="r"]')[i];
+    // 무게: 입력값 없으면 prefW 자동 저장
+    if(wi&&!wi.value&&prefW!=null){wi.value=prefW;s.w=String(prefW);}
+    else if(wi&&wi.value){s.w=wi.value;}
+    // 횟수: 입력값 없으면 목표 rep 자동 저장
+    if(ri&&!ri.value){
+      const defaultRep=String(ex.reps).split('-')[0];
+      ri.value=defaultRep;s.r=defaultRep;
+    } else if(ri&&ri.value){s.r=ri.value;}
+  } else {
+    // 맨몸: 횟수 없으면 목표 rep 자동 저장
+    const ri=card.querySelectorAll('input[data-k="r"]')[i];
+    if(ri&&!ri.value){
+      const defaultRep=String(ex.reps).split('-')[0];
+      ri.value=defaultRep;s.r=defaultRep;
+    } else if(ri&&ri.value){s.r=ri.value;}
+  }
+  startTimer(lastRest);
         if(!wasPR&&isPR(ex)){toast('🏆 신기록! '+ex.name);const b=card.querySelector('.exname');if(b&&!b.querySelector('.b-pr'))b.insertAdjacentHTML('beforeend','<span class="b-pr">🏆 신기록</span>');}
       }
       markExComplete(card);refreshCard();scheduleSave();
