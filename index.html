@@ -473,12 +473,21 @@ async function buildPushedMap(targetDate){
     if(ov==='REST'){
       // 쉬면 cycleIdx 소비 안 함 → 다음날 같은 base 반복
       pushed[d]='REST';
-    } else {
-      // override든 아니든 이 자리의 사이클은 소비
+   } else {
       pushed[d]=ov||base;
-      cycleIdx++;
+      if(ov&&ov!==base){
+        // override 타입이 실제로 사이클에서 몇 번째인지 찾아서 맞춤
+        const ovIdx=CYCLE_SEQ.indexOf(ov);
+        if(ovIdx!==-1){
+          // override 타입 다음 위치로 cycleIdx 설정
+          cycleIdx=ovIdx+1;
+        } else {
+          cycleIdx++;
+        }
+      } else {
+        cycleIdx++;
+      }
     }
-
     d=addDays(d,1);
   }
   return pushed;
