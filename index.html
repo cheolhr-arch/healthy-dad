@@ -1030,11 +1030,12 @@ function renderTodayCard(){
 function getRunIndex(s){
   const dd=diffDays(REF,s);
   let n=0;
-  for(let i=0;i<=Math.max(dd,0);i++){
+  // s 이전까지만 카운트 (s 날은 제외 → s가 "다음 런닝"이 됨)
+  for(let i=0;i<Math.max(dd,0);i++){
     const ds=addDays(REF,i);
     if(baseSchedule(ds)==='RUN') n++;
   }
-  return Math.max(0,n-1);
+  return n; // 0-based, s가 첫 런닝이면 0 → RUNS[0]
 }
 function calcVol(){
   if(currentType!=='A'&&currentType!=='B')return 0;
