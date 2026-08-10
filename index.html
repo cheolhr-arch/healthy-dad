@@ -453,38 +453,28 @@ async function resolveType(s, pushed){
   return baseSchedule(s);
 }
 
-// 오늘까지의 "밀기 이력" 빌드: REF부터 targetDate까지 순서대로 로그 확인
 async function buildPushedMap(targetDate){
   const pushed={};
   let d=REF;
-  // 실제로 수행한 마지막 운동 타입 추적
-  // 사이클: A → RUN → B → RUN → A → RUN → B ...
-  // 다음 웨이트 타입을 결정하기 위해 마지막 웨이트 타입 추적
-  let lastWeight='B'; // REF 이전 마지막 웨이트가 B라고 가정 (REF가 A이므로)
-  let nextExpected=null; // 다음에 와야 할 타입 (밀기 발생 시 사용)
+  let nextExpected=null;
 
   while(d<=targetDate){
     if(dowOf(d)===REST_DOW){d=addDays(d,1);continue;}
 
-    // 이 날 원래 와야 할 타입
     const base=nextExpected||baseSchedule(d);
     nextExpected=null;
 
     const log=await sGet(key(d));
     const ov=log?.override;
 
-    // 실제로 수행한 타입
-    const actual=ov||base;
-    pushed[d]=actual;
-
-    // 실제 수행 타입 기록
-    if(actual==='A'||actual==='B') lastWeight=actual;
-
     if(ov==='REST'){
-      // 쉬면 오늘 해야 할 것을 다음날로 밀기
+      pushed[d]='REST';
       nextExpected=base;
-      // 수동 전환: 오늘 원래 타입을 다음날로 밀기
+    } else if(ov&&ov!==base){
+      pushed[d]=ov;
       nextExpected=base;
+    } else {
+      pushed[d]=base;
     }
 
     d=addDays(d,1);
