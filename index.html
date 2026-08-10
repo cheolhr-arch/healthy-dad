@@ -1055,17 +1055,17 @@ const p=PLANS[currentType];
     ? `지난 ${lastSession.date?.slice(5)} · ${lastDoneSets}/${totalSets}세트`
     : '첫 번째 기록';
   $('#today').innerHTML=`
-    <div class="t-top"><div>
-      <div class="t-eyb">${p.tag} · ~50분</div>
-      <div class="t-title">${p.title}</div>
-      <div class="t-goal">${p.goal}</div>
-    </div>${ringSvg(pr.done,pr.total)}</div>
-    <div class="t-row">
-      <span class="tk">지난 기록</span>
-      <span class="tv" style="font-size:13px;color:var(--ink2)">${lastInfo}</span>
-      <span class="tsep"></span>
-      <span class="tnow">▶ ${tn}</span>
-    </div>
+  <div class="t-top"><div>
+    <div class="t-eyb">${p.tag} · ~50분</div>
+    <div class="t-title">${p.title}</div>
+    <div class="t-goal">${p.goal}</div>
+  </div>${ringSvg(pr.done,pr.total)}</div>
+  <div class="t-row">
+    <span class="tk">지난 기록</span>
+    <span class="tv" style="font-size:13px;color:var(--ink2)">${lastInfo}</span>
+    <span class="tsep"></span>
+    <span class="tnow">▶ ${tn}</span>
+  </div>`;
 }
 
 function getRunIndex(s){
