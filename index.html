@@ -324,7 +324,7 @@ input{font-family:var(--mono);}
 
   <div class="today" id="today"></div>
 
-  <div class="seclab"><span>🤸</span>스트레칭(운동전)</div>
+  <div class="seclab" id="stretchPreLabel"><span>🤸</span>스트레칭(운동전)</div>
   <div class="card stretch" id="stretchPre"></div>
 
   <div class="seclab" id="worklabel"><span>💪</span>오늘의 운동</div>
@@ -335,7 +335,7 @@ input{font-family:var(--mono);}
     <div class="card simple" id="finisher"></div>
   </div>
 
-  <div class="seclab"><span>🧘</span>스트레칭(운동후)</div>
+  <div class="seclab" id="stretchPostLabel"><span>🧘</span>스트레칭(운동후)</div>
   <div class="card stretch" id="stretchPost"></div>
 
   <div class="seclab"><span>✏️</span>메모</div>
@@ -1088,12 +1088,13 @@ function renderWeight(){
 
 function renderPlanInfo(){
   const el=$('#planInfo');
+  if(!el) return;
   el.innerHTML=`<div class="pi-t">📋 훈련 구성 안내</div>
-    <div class="pi-row"><div class="pi-k">💪 A플랜</div><div class="pi-v">스쿼트5·벤치5·로우4·덤벨OHP3·크런치3 / 총 20세트 / ~50분<br>세트 사이 프리웨이트 1~2분 휴식</div></div>
-    <div class="pi-row"><div class="pi-k">🏋️ B플랜</div><div class="pi-v">푸시업5·풀업5·OHP3·데드4·런지4 / 총 21세트 / ~50분<br>세트 사이 프리웨이트 1~2분 휴식</div></div>
-    <div class="pi-row"><div class="pi-k">🏃 런닝</div><div class="pi-v">심폐지구력 6종 로테이션 (VO2인터벌·이지런·템포·롱런·숏인터벌·스트라이드)</div></div>
-    <div class="pi-row"><div class="pi-k">😴 휴식일</div><div class="pi-v">매주 일요일 자동 휴식. 비 오면 🌧️, 달리고 싶으면 🏃 버튼으로 전환 가능</div></div>
-    <div class="pi-row"><div class="pi-k">📅 사이클</div><div class="pi-v">A → B → 런닝 → A → B → 런닝 ... (일요일 건너뜀)</div></div>`;
+    <div class="pi-row"><div class="pi-k">💪 A플랜</div><div class="pi-v">스쿼트5·벤치5·로우4·덤벨OHP3·크런치3 / 총 20세트 / ~50분</div></div>
+    <div class="pi-row"><div class="pi-k">🏋️ B플랜</div><div class="pi-v">푸시업5·풀업5·OHP3·데드4·런지4 / 총 21세트 / ~50분</div></div>
+    <div class="pi-row"><div class="pi-k">🏃 런닝</div><div class="pi-v">단계별 심폐지구력 · 8월 Easy → 12월 5km 특화</div></div>
+    <div class="pi-row"><div class="pi-k">😴 휴식일</div><div class="pi-v">매주 수요일 자동 휴식 · 버튼으로 전환 가능</div></div>
+    <div class="pi-row"><div class="pi-k">📅 사이클</div><div class="pi-v">A → RUN → B → RUN 4일 반복</div></div>`;
 }
 
 /* ---- 점진적 과부하 가이드 ----
@@ -1321,27 +1322,24 @@ async function renderToday(){
   // 체중/수분은 today 카드 위에 있으므로 먼저 렌더
   renderWeight();renderWater();
 
-  // 스트레칭 섹션: REST면 전후 모두 숨김 + 간단 이완 안내 표시
-  const strPreLabel=$('#stretchPre').previousElementSibling;
-  const strPostLabel=$('#stretchPost').previousElementSibling;
-  if(currentType==='REST'){
-    strPreLabel.classList.add('hidden');
-    $('#stretchPre').classList.add('hidden');
-    strPostLabel.classList.add('hidden');
-    $('#stretchPost').innerHTML=`<div class="sc-b"><div class="sc-t">가벼운 이완 <span class="sc-tag">선택</span></div><div class="sl" style="margin-top:6px;font-size:12px;color:var(--dim);line-height:1.6">쉬는 날은 근육 회복이 우선이에요.<br>가볍게 온몸 늘려주는 정도면 충분합니다 — 고양이-소 스트레칭 10회, 어깨 돌리기, 아기자세 1분.</div></div>`;
-    $('#stretchPost').classList.remove('hidden');
-    strPostLabel.classList.remove('hidden');
-    strPostLabel.querySelector('span').textContent='🧘';
-    strPostLabel.childNodes[1] && (strPostLabel.childNodes[1].textContent='이완 스트레칭');
-  } else {
-    strPreLabel.classList.remove('hidden');
-    $('#stretchPre').classList.remove('hidden');
-    strPostLabel.classList.remove('hidden');
-    $('#stretchPost').classList.remove('hidden');
-    const strType=(currentType==='A'||currentType==='B')?currentType:'RUN';
-    renderStretchCard($('#stretchPre'),'pre',strType,'stretchPre');
-    renderStretchCard($('#stretchPost'),'post',strType,'stretchPost');
-  }
+const $strPreLabel=document.getElementById('stretchPreLabel');
+const $strPostLabel=document.getElementById('stretchPostLabel');
+if(currentType==='REST'){
+  if($strPreLabel) $strPreLabel.classList.add('hidden');
+  $('#stretchPre').classList.add('hidden');
+  if($strPostLabel){$strPostLabel.classList.remove('hidden');$strPostLabel.innerHTML='<span>🧘</span>이완 스트레칭';}
+  $('#stretchPost').className='card stretch';
+  $('#stretchPost').innerHTML=`<div class="sc-b"><div class="sc-t">가벼운 이완 <span class="sc-tag">선택</span></div><div class="sl" style="margin-top:6px;font-size:12px;color:var(--dim);line-height:1.6">쉬는 날은 근육 회복이 우선이에요.<br>고양이-소 스트레칭 10회, 어깨 돌리기, 아기자세 1분 정도면 충분합니다.</div></div>`;
+  $('#stretchPost').classList.remove('hidden');
+} else {
+  if($strPreLabel) $strPreLabel.classList.remove('hidden');
+  $('#stretchPre').classList.remove('hidden');
+  if($strPostLabel){$strPostLabel.classList.remove('hidden');$strPostLabel.innerHTML='<span>🧘</span>스트레칭(운동후)';}
+  $('#stretchPost').classList.remove('hidden');
+  const strType=(currentType==='A'||currentType==='B')?currentType:'RUN';
+  renderStretchCard($('#stretchPre'),'pre',strType,'stretchPre');
+  renderStretchCard($('#stretchPost'),'post',strType,'stretchPost');
+}
   renderFinisher();
   $('#note').value=logCache.note||'';
 
