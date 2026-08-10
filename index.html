@@ -502,30 +502,30 @@ function nextWeightType(currentAorB){
    단계: 0(빈봉11.9) / 5(21.9) / 10(31.9) / 15(41.9) / 20(51.9) */
 const PLANS={
   A:{tag:'A플랜',title:'A플랜 · 스쿼트·벤치·로우',
-    goal:'하체+가슴+등 동시 — 아이 안고 앉았다 일어나기',
-    pre:['목 좌우 기울이기 10초씩','어깨 앞뒤 크게 돌리기 각 10회','팔꿈치 머리 위 당기기(삼두) 좌우 15초','가슴 열기 — 양팔 뒤로 깍지 끼고 10초 × 2','고관절 회전 좌우 각 10회','맨몸 스쿼트 15회 (천천히, 폼 체크)','빈봉 스쿼트 10회 · 빈봉 벤치 10회 (워밍업)'],
-    post:['가슴 스트레칭 (도어웨이) 30초 × 2','어깨 뒤 (팔 가로질러 당기기) 좌우 20초','삼두 (팔꿈치 머리 뒤) 좌우 20초','고양이-소 스트레칭 10회','대퇴사두 서서 당기기 좌우 25초','햄스트링 앉아 발 뻗기 30초','아기자세 30초'],
+    goal:'하체+가슴+등 — 아이 안고 버티는 힘'
+    pre:['목 좌우 기울이기','어깨 앞뒤 돌리기 10회','삼두 스트레칭 좌우','가슴 열기 (깍지 끼고)','고관절 회전 10회','맨몸 스쿼트 15회','빈봉 스쿼트·벤치 워밍업'],
+    post:['가슴 (도어웨이) 30초','어깨 뒤 (팔 가로질러) 좌우','삼두 (팔꿈치 머리 뒤) 좌우','고양이-소 10회','대퇴사두 서서 당기기 좌우','햄스트링 앉아 발 뻗기','아기자세 30초'],
     fin:{name:'버피',detail:'12회 × 3세트 · 사이 30초 휴식'},
     tip:'모든 세트 10회 달성 시 → 양쪽 각 5kg 추가',
     ex:[
-      {id:'squat', name:'스쿼트',      sets:5,reps:'10',load:5, bar:true,note:'총 21.9kg · 익숙해지면 10kg 단계 추가'},
-      {id:'bench', name:'벤치프레스',  sets:5,reps:'10',load:5, bar:true,note:'총 21.9kg · 익숙해지면 10kg 단계 추가'},
+      {id:'squat', name:'스쿼트',      sets:5,reps:'10',load:5, bar:true,note:'5kg·쪽 · 총 21.9kg'},
+      {id:'bench', name:'벤치프레스',  sets:5,reps:'10',load:5, bar:true,note:'5kg·쪽 · 요통 시 머신 대체'},
       {id:'row',   name:'벤트오버 바벨 로우',sets:4,reps:'10',load:5,bar:true,note:'총 21.9kg · 요통 있으면 머신 로우 대체'},
-      {id:'dohp',  name:'덤벨 오버헤드프레스',sets:3,reps:'12',load:5,note:'덤벨 5kg · 익숙해지면 7.5→10kg'},
-      {id:'crunch',name:'크런치',      sets:3,reps:'15+',bw:true,note:'매 세트 한계까지'},
+      {id:'dohp',  name:'덤벨 오버헤드프레스',sets:3,reps:'12',load:5,note:'5kg'},
+      {id:'crunch',name:'크런치',      sets:3,reps:'15+',bw:true,note:'한계까지'},
     ]},
   B:{tag:'B플랜',title:'B플랜 · 푸시업·풀업·데드',
-    goal:'전신 연결 — 허리 보호·당기는 힘·하체 뒷사슬',
-    pre:['어깨 돌리기 앞뒤 각 10회','팔 크로스 스트레칭 좌우 10초','데드행 (바에 매달리기) 15초 × 2','고관절 회전 좌우 각 10회','워킹런지 10보','빈봉 데드리프트 10회 (워밍업)'],
-    post:['광배 — 한 손 벽 짚고 옆으로 기울이기 좌우 25초','이두 (팔 뒤로 뻗어 벽) 좌우 20초','승모·목 — 머리 기울이며 손으로 당기기 좌우 20초','햄스트링 서서 발 뻗기 좌우 25초','둔근 (비둘기 자세) 좌우 30초','고관절 굴곡근 런지 스트레칭 좌우 25초','아기자세 30초'],
+    goal:'전신 연결 — 허리 보호·지구력'
+    pre:['어깨 앞뒤 돌리기','팔 크로스 스트레칭 좌우','데드행 15초 × 2','고관절 회전 10회','워킹런지 10보','빈봉 데드 워밍업'],
+   post:['광배 (옆으로 기울이기) 좌우','이두 (팔 뒤로 벽) 좌우','승모·목 좌우','햄스트링 서서 발 뻗기 좌우','둔근 (비둘기 자세) 좌우','고관절 굴곡근 런지 좌우','아기자세 30초'],
     fin:{name:'마운틴 클라이머',detail:'30초 × 3세트 · 사이 30초 휴식'},
     tip:'모든 세트 목표 rep 달성 시 → 양쪽 각 5kg 추가',
     ex:[
-      {id:'pushup',name:'푸시업',      sets:5,reps:'12+',bw:true,note:'12회 못 채우면 무릎 대고'},
-      {id:'pullup',name:'풀업',        sets:5,reps:'8+', bw:true,note:'안 될 때 렛풀다운 10회+ 대체'},
-      {id:'ohp',   name:'오버헤드프레스',sets:3,reps:'10',load:0,bar:true,note:'총 11.9kg(빈봉) · 익숙해지면 5kg 단계 추가'},
-      {id:'dead',  name:'데드리프트',  sets:4,reps:'10',load:10,bar:true,note:'총 31.9kg · 모든 세트 10회 달성 시 5kg 단계 추가'},
-      {id:'lunge', name:'덤벨 런지',   sets:4,reps:'15',load:5, note:'양손 각 5kg · /다리'},
+      {id:'pushup',name:'푸시업',      sets:5,reps:'12+',bw:true,note:'부족하면 무릎 대고'},
+      {id:'pullup',name:'풀업',        sets:5,reps:'8+', bw:true,note:'안 되면 렛풀다운'},
+      {id:'ohp',   name:'오버헤드프레스',sets:3,reps:'10',load:0,bar:true,note:'빈봉'},
+      {id:'dead',  name:'데드리프트',  sets:4,reps:'10',load:10,bar:true,note:'10kg·쪽 · 총 31.9kg'},
+      {id:'lunge', name:'덤벨 런지',   sets:4,reps:'15',load:5, note:'5kg · /다리'},
     ]},
 };
 /* RUNS — 단계별 순서 (처음 런닝부터 순차 진행)
@@ -1005,23 +1005,30 @@ function renderTodayCard(){
         <div class="t-goal">${r.focus}</div>
       </div>${ringSvg(pr.done,pr.total)}</div>
       <div class="rb-list">${blocks}</div>
-      <div class="run-meta">
+<div class="run-meta">
         <div class="rmi"><div class="k">강도</div><div class="v">${r.rpe}</div></div>
-        <div class="rmi"><div class="k">성공 기준</div><div class="v">${r.success}</div></div>
-        <div class="rmi"><div class="k">이번 목표</div><div class="v">${r.goal}</div></div>
+        <div class="rmi"><div class="k">목표</div><div class="v">${r.goal}</div></div>
+        ${lastSession?.run?.dist?`<div class="rmi"><div class="k">지난 런닝</div><div class="v">${lastSession.run.dist}km · ${lastSession.run.time}분${lastSession.run.rpe?' · RPE '+lastSession.run.rpe:''}</div></div>`:''}
       </div>`;
     return;
   }
-  const p=PLANS[currentType];
-  const vol=calcVol();
+const p=PLANS[currentType];
+  // 지난 같은 플랜 완료 세트 수
+  const lastDoneSets=lastSession?.ex
+    ? Object.values(lastSession.ex).reduce((a,e)=>a+(e.sets?.filter(s=>s?.done).length||0),0)
+    : 0;
+  const totalSets=p.ex.reduce((a,e)=>a+e.sets,0);
+  const lastInfo=lastDoneSets>0
+    ? `지난 ${lastSession.date?.slice(5)} · ${lastDoneSets}/${totalSets}세트`
+    : '첫 번째 기록';
   $('#today').innerHTML=`
     <div class="t-top"><div>
-      <div class="t-eyb">오늘의 운동 · ${p.tag}</div>
+      <div class="t-eyb">${p.tag} · ~50분</div>
       <div class="t-title">${p.title}</div>
       <div class="t-goal">${p.goal}</div>
     </div>${ringSvg(pr.done,pr.total)}</div>
     <div class="t-row">
-      <span class="tk">총 볼륨</span><span class="tv">${vol.toLocaleString()}</span><span class="tu">kg</span>
+      <span class="tk">지난 기록</span><span class="tv" style="font-size:13px">${lastInfo}</span>
       <span class="tsep"></span>
       <span class="tnow">▶ ${tn}</span>
     </div>`;
@@ -1036,15 +1043,6 @@ function getRunIndex(s){
     if(baseSchedule(ds)==='RUN') n++;
   }
   return n; // 0-based, s가 첫 런닝이면 0 → RUNS[0]
-}
-function calcVol(){
-  if(currentType!=='A'&&currentType!=='B')return 0;
-  let v=0;
-  (PLANS[currentType].ex||[]).forEach(ex=>{
-    const s=logCache.ex[ex.id];if(!s?.sets||ex.bw)return;
-    s.sets.forEach(st=>{if(!st?.done)return;const w=Number(st.w)||0,rp=Number(st.r)||0;v+=(ex.bar?(BAR+2*w):(2*w))*rp;});
-  });
-  return Math.round(v);
 }
 
 function renderStretchCard(el,phase,type,flag){
