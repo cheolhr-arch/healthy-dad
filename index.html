@@ -503,8 +503,18 @@ function nextWeightType(currentAorB){
 const PLANS={
   A:{tag:'A플랜',title:'A플랜 · 스쿼트·벤치·로우',
     goal:'하체+가슴+등 — 아이 안고 버티는 힘'
-    pre:['목 좌우 기울이기','어깨 앞뒤 돌리기 10회','삼두 스트레칭 좌우','가슴 열기 (깍지 끼고)','고관절 회전 10회','맨몸 스쿼트 15회','빈봉 스쿼트·벤치 워밍업'],
-    post:['가슴 (도어웨이) 30초','어깨 뒤 (팔 가로질러) 좌우','삼두 (팔꿈치 머리 뒤) 좌우','고양이-소 10회','대퇴사두 서서 당기기 좌우','햄스트링 앉아 발 뻗기','아기자세 30초'],
+    pre:[
+  {name:'고관절 회전', yt:'고관절 회전 스트레칭 운동 전', desc:'서서 무릎을 들어 양손으로 감싸 가슴 쪽으로 당기기 · 좌우 10회'},
+  {name:'맨몸 스쿼트', yt:'맨몸 스쿼트 워밍업 폼', desc:'발 어깨 너비 · 천천히 앉았다 일어나기 · 허리 세우기 · 15회'},
+  {name:'가슴 열기', yt:'가슴 스트레칭 도어웨이', desc:'문틀에 양팔 대고 몸을 앞으로 밀기 · 팔꿈치 90도 · 20초 × 2'},
+  {name:'빈봉 워밍업', yt:'바벨 스쿼트 벤치프레스 워밍업', desc:'빈봉으로 스쿼트 10회, 벤치 10회 · 천천히 폼 체크'},
+],
+post:[
+  {name:'대퇴사두 당기기', yt:'대퇴사두 스트레칭 운동 후', desc:'서서 뒤꿈치를 엉덩이에 · 벽 짚어도 OK · 좌우 25초'},
+  {name:'햄스트링', yt:'햄스트링 스트레칭 운동 후', desc:'바닥에 앉아 다리 뻗고 상체 숙이기 · 무릎 살짝 구부려도 OK · 30초'},
+  {name:'가슴 도어웨이', yt:'가슴 스트레칭 도어웨이', desc:'문틀에 양팔 대고 몸 앞으로 밀기 · 30초'},
+  {name:'아기자세', yt:'아기자세 차일드포즈 스트레칭', desc:'무릎 꿇고 팔 앞으로 뻗어 상체를 바닥에 · 등·허리·어깨 이완 · 30초'},
+],
     fin:{name:'버피',detail:'12회 × 3세트 · 사이 30초 휴식'},
     tip:'모든 세트 10회 달성 시 → 양쪽 각 5kg 추가',
     ex:[
@@ -516,8 +526,18 @@ const PLANS={
     ]},
   B:{tag:'B플랜',title:'B플랜 · 푸시업·풀업·데드',
     goal:'전신 연결 — 허리 보호·지구력'
-    pre:['어깨 앞뒤 돌리기','팔 크로스 스트레칭 좌우','데드행 15초 × 2','고관절 회전 10회','워킹런지 10보','빈봉 데드 워밍업'],
-   post:['광배 (옆으로 기울이기) 좌우','이두 (팔 뒤로 벽) 좌우','승모·목 좌우','햄스트링 서서 발 뻗기 좌우','둔근 (비둘기 자세) 좌우','고관절 굴곡근 런지 좌우','아기자세 30초'],
+    pre:[
+  {name:'어깨 돌리기', yt:'어깨 돌리기 워밍업', desc:'팔을 크게 앞으로 10회, 뒤로 10회 · 천천히 크게'},
+  {name:'데드행', yt:'데드행 스트레칭 턱걸이', desc:'바에 매달려 힘 빼고 축 늘어지기 · 어깨·등 이완 · 15초 × 2'},
+  {name:'고관절 회전', yt:'고관절 회전 스트레칭 운동 전', desc:'서서 무릎을 들어 양손으로 감싸 가슴 쪽으로 당기기 · 좌우 10회'},
+  {name:'워킹런지', yt:'워킹런지 워밍업 폼', desc:'한 걸음씩 앞으로 · 앞 무릎이 발끝 넘지 않게 · 10보'},
+],
+post:[
+  {name:'광배 스트레칭', yt:'광배근 스트레칭 운동 후', desc:'한 손으로 문틀 잡고 옆으로 몸 기울이기 · 등 옆이 당기는 느낌 · 좌우 25초'},
+  {name:'햄스트링', yt:'햄스트링 스트레칭 운동 후', desc:'바닥에 앉아 다리 뻗고 상체 숙이기 · 좌우 25초'},
+  {name:'둔근 비둘기자세', yt:'비둘기자세 스트레칭 둔근', desc:'바닥에 앉아 한 발 앞에 접고 뒷발 뻗기 · 상체 앞으로 숙이기 · 좌우 30초'},
+  {name:'아기자세', yt:'아기자세 차일드포즈 스트레칭', desc:'무릎 꿇고 팔 앞으로 뻗어 상체를 바닥에 · 30초'},
+],
     fin:{name:'마운틴 클라이머',detail:'30초 × 3세트 · 사이 30초 휴식'},
     tip:'모든 세트 목표 rep 달성 시 → 양쪽 각 5kg 추가',
     ex:[
@@ -813,8 +833,21 @@ const RUNS=[
   },
 ];
 const RUN_META={
-  pre:['제자리 걷기 1분','발목 돌리기 좌우 10회','레그 스윙 앞뒤 좌우 각 10회','고관절 회전 좌우 10회','워킹런지 10보','천천히 조깅으로 5분 워밍업 후 본 런닝 시작'],
-  post:['종아리 (벽 짚고 뒤꿈치 내리기) 좌우 30초','햄스트링 서서 발 뻗기 좌우 25초','대퇴사두 서서 당기기 좌우 25초','고관절 굴곡근 런지 스트레칭 좌우 25초','둔근 (비둘기 자세) 좌우 30초','아기자세 30초'],
+  pre:[
+    {name:'발목 돌리기', yt:'발목 돌리기 워밍업 달리기', desc:'서서 발끝 들고 안팎으로 · 좌우 10회'},
+    {name:'레그스윙 앞뒤', yt:'레그스윙 달리기 드릴', desc:'벽 짚고 다리를 앞뒤로 크게 흔들기 · 좌우 10회'},
+    {name:'레그스윙 옆으로', yt:'레그스윙 사이드 달리기 워밍업', desc:'벽 짚고 다리를 좌우로 크게 흔들기 · 좌우 10회'},
+    {name:'하이니', yt:'하이니 달리기 드릴', desc:'무릎을 골반 높이까지 들어 올리며 달리기 · 20m 또는 제자리 20회'},
+    {name:'버트킥', yt:'버트킥 달리기 드릴', desc:'뒤꿈치를 엉덩이에 차듯이 빠르게 · 20m 또는 제자리 20회'},
+    {name:'워킹런지', yt:'워킹런지 달리기 워밍업', desc:'한 걸음씩 앞으로 · 앞 무릎이 발끝 넘지 않게 · 10보'},
+  ],
+  post:[
+    {name:'종아리', yt:'종아리 스트레칭 달리기 후', desc:'벽 짚고 뒷발 뒤꿈치 바닥에 · 무릎 펴고 30초 → 구부리고 30초 · 좌우'},
+    {name:'햄스트링', yt:'햄스트링 스트레칭 달리기 후', desc:'서서 한 발 앞에 뻗고 상체 천천히 숙이기 · 좌우 30초'},
+    {name:'대퇴사두', yt:'대퇴사두 스트레칭 달리기 후', desc:'서서 뒤꿈치를 엉덩이에 · 벽 짚어도 OK · 좌우 25초'},
+    {name:'둔근', yt:'둔근 스트레칭 서서 달리기 후', desc:'서서 한 발 들어 무릎을 가슴 쪽으로 당기기 · 좌우 25초'},
+    {name:'고관절 굴곡근', yt:'고관절 굴곡근 스트레칭 서서', desc:'서서 런지 자세로 앞 무릎 구부리고 골반 앞으로 밀기 · 좌우 25초'},
+  ],
 };
 const LEVELS=[
   {lv:1,name:'물렁 아빠',emoji:'🥔',min:0},{lv:2,name:'꿈틀 아빠',emoji:'🐣',min:5},
@@ -1049,11 +1082,20 @@ function renderStretchCard(el,phase,type,flag){
   const arr=(type==='RUN'?RUN_META:PLANS[type]||PLANS.A)[phase]||[];
   const done=!!logCache[flag];
   el.className='card stretch'+(done?' done':'');
-  const items=arr.map((s,i)=>`<div class="sc-item"><span class="si">${i+1}.</span><span>${s}</span></div>`).join('');
-  el.innerHTML=`<div class="sc-b"><div class="sc-t">${phase==='pre'?'다이나믹 워밍업':'정적 스트레칭'} <span class="sc-tag">${phase==='pre'?'5~7분':'5~7분'}</span></div><div class="sc-list">${items}</div></div>${checkSvg(done)}`;
+  const label=phase==='pre'?'워밍업':'쿨다운';
+  const items=arr.map((s,i)=>{
+    const name=typeof s==='object'?s.name:s;
+    const yt=typeof s==='object'?s.yt:'';
+    const ytUrl=yt?`https://www.youtube.com/results?search_query=${encodeURIComponent(yt)}`:'';
+    return `<div class="sc-item">
+      <span class="si">${i+1}.</span>
+      <span style="flex:1">${name}</span>
+      ${ytUrl?`<a href="${ytUrl}" target="_blank" style="flex:0 0 auto;font-size:10px;color:var(--coral);font-weight:700;text-decoration:none;background:var(--coral-soft);padding:2px 7px;border-radius:6px;white-space:nowrap">▶ 영상</a>`:''}
+    </div>`;
+  }).join('');
+  el.innerHTML=`<div class="sc-b" style="flex:1;min-width:0"><div class="sc-t">${label} <span class="sc-tag">5분</span></div><div class="sc-list">${items}</div></div>${checkSvg(done)}`;
   el.querySelector('.check').onclick=()=>{logCache[flag]=!logCache[flag];renderStretchCard(el,phase,type,flag);refreshCard();scheduleSave();};
 }
-
 function renderFinisher(){
   const wrap=$('#finisherWrap');
   if(currentType!=='A'&&currentType!=='B'){wrap.classList.add('hidden');return;}
