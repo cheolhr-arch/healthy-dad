@@ -1245,31 +1245,35 @@ function ensureSet(id,i){if(!logCache.ex[id])logCache.ex[id]={sets:[]};if(!logCa
 function markExComplete(card){const ch=[...card.querySelectorAll('.check')];card.classList.toggle('complete',ch.length>0&&ch.every(c=>c.classList.contains('on')));card.classList.remove('now');}
 function renderStrength(list){
   const p=PLANS[currentType];
-  const lastDoneSets=lastSession?.ex
-    ?Object.values(lastSession.ex).reduce((a,e)=>a+(e.sets?.filter(s=>s?.done).length||0),0)
-    :0;
-  const totalSets=p.ex.reduce((a,e)=>a+e.sets,0);
-  const lastInfo=lastDoneSets>0
-    ?`${lastDoneSets}/${totalSets}세트 완료`
-    :'첫 번째 기록';
-  $('#today').innerHTML=`
-    <div class="t-top"><div>
-      <div class="t-eyb">${p.tag} · ~50분</div>
+  let firstInc=true;
+
+  p.ex.forEach(ex=>{
     const saved=logCache.ex[ex.id];
     const lastEx=lastSession?.ex?.[ex.id];
 
     // 점진적 과부하 가이드 계산
     const guide=progressionGuide(ex, lastEx);
-    // 입력칸 기본값: 오늘 이미 입력값 > 가이드 > 지난 무게 > 프로그램 기본값
+
     const prefW = ex.bw ? null
       : (guide?.type==='weight' ? guide.val
       : (lastEx?.sets?.find(s=>s?.w)?.w ?? ex.load ?? null));
+
     const prefR = ex.bw && guide?.type==='rep' ? guide.val : null;
 
-    const done=exDone(ex);const isNow=!done&&firstInc;if(!done)firstInc=false;
-    const card=document.createElement('div');card.className='ex'+(done?' complete':(isNow?' now':''));
-    const nb=isNow?'<span class="b-now">NOW</span>':'';const prb=isPR(ex)?'<span class="b-pr">🏆 신기록</span>':'';
-    let h=`<div class="exhead"><div class="exname">${nb}${ex.name}${prb}</div><div class="exscheme">${ex.sets}×${ex.reps}</div></div>`;
+    const done=exDone(ex);
+    const isNow=!done&&firstInc;
+    if(!done)firstInc=false;
+
+    const card=document.createElement('div');
+    card.className='ex'+(done?' complete':(isNow?' now':''));
+
+    const nb=isNow?'<span class="b-now">NOW</span>':'';
+    const prb=isPR(ex)?'<span class="b-pr">🏆 신기록</span>':'';
+
+    let h=`<div class="exhead">
+      <div class="exname">${nb}${ex.name}${prb}</div>
+      <div class="exscheme">${ex.sets}×${ex.reps}</div>
+    </div>`;
     h+=loadHint(ex, ex.bar?(prefW??ex.load):ex.load);
     if(ex.note)h+=`<div class="exnote">💡 ${ex.note}</div>`;
 
