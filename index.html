@@ -502,7 +502,7 @@ function nextWeightType(currentAorB){
    단계: 0(빈봉11.9) / 5(21.9) / 10(31.9) / 15(41.9) / 20(51.9) */
 const PLANS={
   A:{tag:'A플랜',title:'A플랜 · 스쿼트·벤치·로우',
-    goal:'하체+가슴+등 — 아이 안고 버티는 힘'
+    goal:'하체+가슴+등 — 아이 안고 버티는 힘',
     pre:[
   {name:'고관절 회전', yt:'고관절 회전 스트레칭 운동 전', desc:'서서 무릎을 들어 양손으로 감싸 가슴 쪽으로 당기기 · 좌우 10회'},
   {name:'맨몸 스쿼트', yt:'맨몸 스쿼트 워밍업 폼', desc:'발 어깨 너비 · 천천히 앉았다 일어나기 · 허리 세우기 · 15회'},
@@ -525,7 +525,7 @@ post:[
       {id:'crunch',name:'크런치',      sets:3,reps:'15+',bw:true,note:'한계까지'},
     ]},
   B:{tag:'B플랜',title:'B플랜 · 푸시업·풀업·데드',
-    goal:'전신 연결 — 허리 보호·지구력'
+    goal:'전신 연결 — 허리 보호·지구력',
     pre:[
   {name:'어깨 돌리기', yt:'어깨 돌리기 워밍업', desc:'팔을 크게 앞으로 10회, 뒤로 10회 · 천천히 크게'},
   {name:'데드행', yt:'데드행 스트레칭 턱걸이', desc:'바에 매달려 힘 빼고 축 늘어지기 · 어깨·등 이완 · 15초 × 2'},
@@ -1061,10 +1061,11 @@ const p=PLANS[currentType];
       <div class="t-goal">${p.goal}</div>
     </div>${ringSvg(pr.done,pr.total)}</div>
     <div class="t-row">
-      <span class="tk">지난 기록</span><span class="tv" style="font-size:13px">${lastInfo}</span>
+      <span class="tk">지난 기록</span>
+      <span class="tv" style="font-size:13px;color:var(--ink2)">${lastInfo}</span>
       <span class="tsep"></span>
       <span class="tnow">▶ ${tn}</span>
-    </div>`;
+    </div>
 }
 
 function getRunIndex(s){
@@ -1243,8 +1244,17 @@ function runWithCycleProgression(runIdx){
 function ensureSet(id,i){if(!logCache.ex[id])logCache.ex[id]={sets:[]};if(!logCache.ex[id].sets)logCache.ex[id].sets=[];while(logCache.ex[id].sets.length<=i)logCache.ex[id].sets.push({});return logCache.ex[id].sets[i];}
 function markExComplete(card){const ch=[...card.querySelectorAll('.check')];card.classList.toggle('complete',ch.length>0&&ch.every(c=>c.classList.contains('on')));card.classList.remove('now');}
 function renderStrength(list){
-  const p=PLANS[currentType];let firstInc=true;
-  p.ex.forEach(ex=>{
+  const p=PLANS[currentType];
+  const lastDoneSets=lastSession?.ex
+    ?Object.values(lastSession.ex).reduce((a,e)=>a+(e.sets?.filter(s=>s?.done).length||0),0)
+    :0;
+  const totalSets=p.ex.reduce((a,e)=>a+e.sets,0);
+  const lastInfo=lastDoneSets>0
+    ?`${lastDoneSets}/${totalSets}세트 완료`
+    :'첫 번째 기록';
+  $('#today').innerHTML=`
+    <div class="t-top"><div>
+      <div class="t-eyb">${p.tag} · ~50분</div>
     const saved=logCache.ex[ex.id];
     const lastEx=lastSession?.ex?.[ex.id];
 
